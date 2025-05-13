@@ -3,12 +3,27 @@
 
 #include <iostream>
 #include <chrono>
+#include <signal.h>
+
+namespace {
+	std::atomic<bool> resized(false);
+
+	void handle_winch(int /*signum*/) {
+    	resized.store(true);
+	}
+}
 
 // === public methods ===
 MonoGlyph::MonoGlyph()
 {
 	terminal_.clear();
 	terminal_.enableRawMode();
+
+	struct sigaction sa{};
+	sa.sa_handler = handle_winch;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_RESTART;
+	sigaction(SIGWINCH, &sa, nullptr);
 }
 
 MonoGlyph::~MonoGlyph()
@@ -26,10 +41,16 @@ int MonoGlyph::start()
 
 		using namespace std::chrono;
 
-		auto end = high_resolution_clock::now() + seconds(3);
+		auto end = high_resolution_clock::now() + seconds(60);
 		while (high_resolution_clock::now() < end)
 		{
+			if (resized.exchange(false)) {
+				terminal_.updateSize();
+				terminal_.clear();
 
+				size = terminal_.size();
+				std::cout << "x: " << size.x << ", y: " << size.y << std::endl;
+			}
 		}
 
 		return 0;

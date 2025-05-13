@@ -3,6 +3,8 @@
 #include "commonTypes.h"
 #include "terminal.h"
 
+#include <atomic>
+
 class MonoGlyph
 {
 	using Size = Point;
