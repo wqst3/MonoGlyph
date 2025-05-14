@@ -3,6 +3,7 @@
 #include "commonTypes.h"
 #include "terminal.h"
 #include "screenBuffer.h"
+#include "drawer.h"
 
 #include <atomic>
 
@@ -12,6 +13,7 @@ class MonoGlyph
 
 	Terminal terminal_;
 	ScreenBuffer sBuffer_;
+	Drawer drawer_;
 
 	void timer(int) const noexcept;
 
