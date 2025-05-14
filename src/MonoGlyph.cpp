@@ -40,22 +40,28 @@ int MonoGlyph::start()
 {
 	try {
 		Size tSize = terminal_.size();
-		drawer_.drawLine(0, 0, tSize.x - 1, tSize.y - 1, '@');
+
+		ScreenBuffer rhombus(10, 10);
+		Drawer rhombusDrawer(rhombus);
+
+		rhombusDrawer.drawLine(0, 4, 4, 0, '*');
+		rhombusDrawer.drawLine(5, 0, 9, 4, '*');
+		rhombusDrawer.drawLine(9, 5, 5, 9, '*');
+		rhombusDrawer.drawLine(4, 9, 0, 5, '*');
+
+		drawer_.drawBuffer((tSize.x - 10) / 2, (tSize.y - 10) / 2, rhombus);
 		sBuffer_.flush();
-		
+
 		using namespace std::chrono;
 		auto end = high_resolution_clock::now() + seconds(15);
 		while (high_resolution_clock::now() < end)
 		{
 			if (resized.exchange(false)) {
-				terminal_.updateSize();
-
-				tSize = terminal_.size();
+				Size tSize = terminal_.updateSize();
 				sBuffer_.resize(tSize.x, tSize.y);
 
-				drawer_.drawLine(0, 0, tSize.x - 1, tSize.y - 1, '@');
-
-				terminal_.clear();
+				sBuffer_.clear();
+				drawer_.drawBuffer((tSize.x - 10) / 2, (tSize.y - 10) / 2, rhombus);
 				sBuffer_.flush();
 			}
 		}

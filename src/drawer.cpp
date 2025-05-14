@@ -62,3 +62,19 @@ void Drawer::drawString(int x, int y, const char* s) noexcept
 		++x;
 	}
 }
+
+//void Drawer::drawView(int x, int y, std::vector<Line>& lines, char c)
+//{
+//	for (const auto& line : lines)
+//		drawLine(line.x1, line.y1, line.x2, line.y2, c)
+//}
+
+void Drawer::drawBuffer(int x, int y, ScreenBuffer& sb) noexcept
+{
+	Size sbSize = sb.size();
+
+	for (int sbY = 0; sbY <  sbSize.y; ++sbY)
+		for (int sbX = 0; sbX < sbSize.x; ++sbX)
+			drawPixel(x + sbX, y + sbY, sb.at(sbX, sbY));
+}
+
