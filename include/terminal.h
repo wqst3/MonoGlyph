@@ -21,6 +21,8 @@ public:
 	void enableRawMode();
 	void disableRawMode();
 
+	void altBuffer();
+	void hideCur();
 	void clear();
 	void restore();
 

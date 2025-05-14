@@ -15,7 +15,11 @@ namespace {
 
 // === public methods ===
 MonoGlyph::MonoGlyph()
+  : terminal_()
+  , sBuffer_(terminal_.size())
 {
+	terminal_.altBuffer();
+	terminal_.hideCur();
 	terminal_.clear();
 	terminal_.enableRawMode();
 
@@ -35,21 +39,24 @@ MonoGlyph::~MonoGlyph()
 int MonoGlyph::start()
 {
 	try {
-
-		Size size = terminal_.size();	
-		std::cout << "x: " << size.x << ", y: " << size.y << std::endl;
-
+		Size tSize = terminal_.size();
+		sBuffer_.at(tSize.x / 2, tSize.y / 2) = '#';
+		sBuffer_.flush();
+		
 		using namespace std::chrono;
-
-		auto end = high_resolution_clock::now() + seconds(60);
+		auto end = high_resolution_clock::now() + seconds(15);
 		while (high_resolution_clock::now() < end)
 		{
 			if (resized.exchange(false)) {
 				terminal_.updateSize();
-				terminal_.clear();
 
-				size = terminal_.size();
-				std::cout << "x: " << size.x << ", y: " << size.y << std::endl;
+				tSize = terminal_.size();
+				sBuffer_.resize(tSize.x, tSize.y);
+
+				sBuffer_.at(tSize.x / 2, tSize.y / 2) = '#';
+
+				terminal_.clear();
+				sBuffer_.flush();
 			}
 		}
 

@@ -55,10 +55,18 @@ void Terminal::disableRawMode()
 }
 
 
+void Terminal::altBuffer()
+{
+	std::system("tput smcup");
+}
+
+void Terminal::hideCur()
+{
+	write(STDOUT_FILENO, "\x1b[?25l", 6);
+}
+
 void Terminal::clear()
 {
-	std::system("tput smcup");		// Включить альтернативный экранный буфер
-	write(STDOUT_FILENO, "\x1b[?25l", 6);   // Скрыть курсор
 	write(STDOUT_FILENO, "\x1b[2J", 4);     // Очистить весь экран
 	write(STDOUT_FILENO, "\x1b[H", 3);      // Курсор в начало
 }
