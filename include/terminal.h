@@ -16,7 +16,7 @@ class Terminal
 public:
 	Terminal();
 
-	void updateSize();
+	Size updateSize();
 
 	void enableRawMode();
 	void disableRawMode();

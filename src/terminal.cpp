@@ -12,7 +12,7 @@ Terminal::Terminal()
 }
 
 
-void Terminal::updateSize()
+Terminal::Size Terminal::updateSize()
 {	
 	winsize ws;
 
@@ -23,6 +23,8 @@ void Terminal::updateSize()
 
 	size_.x = ws.ws_col;
 	size_.y = ws.ws_row;
+
+	return size_;
 }
 
 
