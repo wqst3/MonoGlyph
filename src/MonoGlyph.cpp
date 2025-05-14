@@ -44,10 +44,12 @@ int MonoGlyph::start()
 		ScreenBuffer rhombus(10, 10);
 		Drawer rhombusDrawer(rhombus);
 
-		rhombusDrawer.drawLine(0, 4, 4, 0, '*');
-		rhombusDrawer.drawLine(5, 0, 9, 4, '*');
-		rhombusDrawer.drawLine(9, 5, 5, 9, '*');
-		rhombusDrawer.drawLine(4, 9, 0, 5, '*');
+		std::vector<Line> rhombusView {Line{0.0f, 0.4f, 0.4f, 0.0f},	// от 0.0 до 1.0
+					       Line{0.5f, 0.0f, 0.9f, 0.4f},
+				   	       Line{0.9f, 0.5f, 0.5f, 0.9f},
+					       Line{0.4f, 0.9f, 0.0f, 0.5f}};
+
+		rhombusDrawer.drawView(0, 0, rhombusView, '*');
 
 		drawer_.drawBuffer((tSize.x - 10) / 2, (tSize.y - 10) / 2, rhombus);
 		sBuffer_.flush();

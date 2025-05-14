@@ -63,11 +63,20 @@ void Drawer::drawString(int x, int y, const char* s) noexcept
 	}
 }
 
-//void Drawer::drawView(int x, int y, std::vector<Line>& lines, char c)
-//{
-//	for (const auto& line : lines)
-//		drawLine(line.x1, line.y1, line.x2, line.y2, c)
-//}
+void Drawer::drawView(int x, int y, std::vector<Line>& lines, char c) noexcept
+{
+	Size size = sBuffer_.size();
+	
+	int x1, y1, x2, y2;
+	for (const auto& line : lines) {
+		x1 = line.x1 * size.x;
+		y1 = line.y1 * size.y;
+		x2 = line.x2 * size.x;
+		y2 = line.y2 * size.y;
+		
+		drawLine(x1, y1, x2, y2, c);
+	}
+}
 
 void Drawer::drawBuffer(int x, int y, ScreenBuffer& sb) noexcept
 {
