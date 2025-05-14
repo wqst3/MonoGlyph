@@ -9,7 +9,8 @@
 
 class MonoGlyph
 {
-	using Size = Point;
+	using Line = Vector<float>;
+	using Size = Point<int>;
 
 	Terminal terminal_;
 	ScreenBuffer sBuffer_;

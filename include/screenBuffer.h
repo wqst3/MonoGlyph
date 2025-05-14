@@ -4,7 +4,7 @@
 
 class ScreenBuffer
 {
-	using Size = Point;
+	using Size = Point<int>;
 
 	char* buffer_;
 	Size size_;

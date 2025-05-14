@@ -1,14 +1,16 @@
 #pragma once
 
+template <typename T>
 struct Point {
-	int x;
-	int y;
+	T x;
+	T y;
 };
 
+template <typename T>
 struct Vector {
-	int x1;
-	int y1;
-	int x2;
-	int y2;
+	T x1;
+	T y1;
+	T x2;
+	T y2;
 };
 

@@ -6,7 +6,7 @@
 
 class Terminal
 {
-	using Size = Point;
+	using Size = Point<int>;
 
 	termios orig_termios_;
 	termios raw_;
