@@ -58,13 +58,11 @@ void ScreenBuffer::flush() const noexcept
 
 const char& ScreenBuffer::at(int x, int y) const noexcept
 {
-	//assert(x >= 0 && x < size_.x && y >= 0 && y < size_.y);
 	return buffer_[y * size_.x + x];
 }
 
 char& ScreenBuffer::at(int x, int y) noexcept
 {
-	//assert(x >= 0 && x < size_.x && y >= 0 && y < size_.y);
 	return buffer_[y * size_.x + x];
 }
 
