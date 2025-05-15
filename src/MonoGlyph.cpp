@@ -8,7 +8,7 @@ namespace {
 	std::atomic<bool> resized(false);
 
 	void handle_winch(int /*signum*/) {
-    	resized.store(true);
+		resized.store(true);
 	}
 }
 
@@ -17,6 +17,7 @@ MonoGlyph::MonoGlyph()
   : terminal_()
   , sBuffer_(terminal_.size())
   , drawer_(sBuffer_)
+  , fManager_()
 {
 	terminal_.altBuffer();
 	terminal_.hideCur();
@@ -39,19 +40,15 @@ MonoGlyph::~MonoGlyph()
 int MonoGlyph::start()
 {
 	try {
-		Size tSize = terminal_.size();
+		auto font = fManager_.get("english");
+		if (!font) {
+			std::cerr << "Шрифт 'english' не найден\n";
+			return 0;
+		}
 
-		ScreenBuffer rhombus(10, 10);
-		Drawer rhombusDrawer(rhombus);
-
-		std::vector<Line> rhombusView {Line{0.0f, 0.4f, 0.4f, 0.0f},	// от 0.0 до 1.0
-					       Line{0.5f, 0.0f, 0.9f, 0.4f},
-				   	       Line{0.9f, 0.5f, 0.5f, 0.9f},
-					       Line{0.4f, 0.9f, 0.0f, 0.5f}};
-
-		rhombusDrawer.drawView(0, 0, rhombusView, '*');
-
-		drawer_.drawBuffer((tSize.x - 10) / 2, (tSize.y - 10) / 2, rhombus);
+		const Glyph* g = font->getIfExists('A');
+		if (g)
+			drawer_.drawView(0, 0, g->segments, '*');
 		sBuffer_.flush();
 
 		using namespace std::chrono;
@@ -62,8 +59,7 @@ int MonoGlyph::start()
 				Size tSize = terminal_.updateSize();
 				sBuffer_.resize(tSize.x, tSize.y);
 
-				sBuffer_.clear();
-				drawer_.drawBuffer((tSize.x - 10) / 2, (tSize.y - 10) / 2, rhombus);
+				drawer_.drawView(0, 0, g->segments, '*');
 				sBuffer_.flush();
 			}
 		}

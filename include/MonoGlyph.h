@@ -4,6 +4,7 @@
 #include "terminal.h"
 #include "screenBuffer.h"
 #include "drawer.h"
+#include "fontManager.h"
 
 #include <atomic>
 
@@ -15,6 +16,7 @@ class MonoGlyph
 	Terminal terminal_;
 	ScreenBuffer sBuffer_;
 	Drawer drawer_;
+	FontManager fManager_;
 
 	void timer(int) const noexcept;
 

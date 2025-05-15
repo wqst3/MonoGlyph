@@ -7,8 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(include)
 
-add_executable(MonoGlyph main.cpp src/terminal.cpp src/MonoGlyph.cpp src/screenBuffer.cpp src/drawer.cpp)
+add_executable(MonoGlyph main.cpp src/terminal.cpp src/MonoGlyph.cpp src/screenBuffer.cpp src/drawer.cpp src/font.cpp src/fontManager.cpp)
 
-#file(COPY ${CMAKE_SOURCE_DIR}/fonts DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/fonts DESTINATION ${CMAKE_BINARY_DIR})
 
 target_compile_options(MonoGlyph PRIVATE -Wall)
