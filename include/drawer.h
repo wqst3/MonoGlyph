@@ -18,7 +18,7 @@ public:
 	void drawLine(int, int, int, int, char) noexcept;
 	void drawLetter(int, int, char) noexcept;
 	void drawString(int, int, const char*) noexcept;
-	void drawView(int, int, std::vector<Line>&, char) noexcept;
+	void drawView(int, int, const std::vector<Line>&, char) noexcept;
 	void drawBuffer(int, int, ScreenBuffer&) noexcept;
 
 };

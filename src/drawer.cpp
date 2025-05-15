@@ -63,7 +63,7 @@ void Drawer::drawString(int x, int y, const char* s) noexcept
 	}
 }
 
-void Drawer::drawView(int x, int y, std::vector<Line>& lines, char c) noexcept
+void Drawer::drawView(int x, int y, const std::vector<Line>& lines, char c) noexcept
 {
 	Size size = sBuffer_.size();
 	
