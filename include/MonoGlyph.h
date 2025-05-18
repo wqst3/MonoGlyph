@@ -6,19 +6,39 @@
 #include "drawer.h"
 #include "fontManager.h"
 
-#include <atomic>
+#include <functional>
 
 class MonoGlyph
 {
 	using Line = Vector<float>;
 	using Size = Point<int>;
 
+	enum class State { Loading, Menu, Typing, Exit };
+	State currentState_;
+
 	Terminal terminal_;
 	ScreenBuffer sBuffer_;
 	Drawer drawer_;
 	FontManager fManager_;
 
+	int sigfd_;
+	int timerfd_;
+
 	void timer(int) const noexcept;
+
+	State handleMenu();
+    	State handleLoading();
+    	State handleTyping();
+
+	void drawLoadingFrame();
+	bool loadingDone();
+	void onResize();
+
+	void initSignalFD();
+	void initTimerFD(unsigned int);
+	void eventLoop(std::function<void()>,
+		       std::function<void()>,
+		       std::function<bool()>);
 
 public:
 	MonoGlyph();
