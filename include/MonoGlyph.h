@@ -5,6 +5,7 @@
 #include "screenBuffer.h"
 #include "drawer.h"
 #include "fontManager.h"
+#include "fileDescriptor.h"
 
 #include <functional>
 
@@ -21,10 +22,8 @@ class MonoGlyph
 	Drawer drawer_;
 	FontManager fManager_;
 
-	int sigfd_;
-	int timerfd_;
-
-	void timer(int) const noexcept;
+	FileDescriptor sigfd_;
+	FileDescriptor timerfd_;
 
 	State handleMenu();
     	State handleLoading();
@@ -36,6 +35,7 @@ class MonoGlyph
 
 	void initSignalFD();
 	void initTimerFD(unsigned int);
+
 	void eventLoop(std::function<void()>,
 		       std::function<void()>,
 		       std::function<bool()>);
@@ -43,10 +43,10 @@ class MonoGlyph
 public:
 	MonoGlyph();
 
-	MonoGlyph(const MonoGlyph&) = delete;
+	explicit MonoGlyph(const MonoGlyph&) = delete;
 	MonoGlyph& operator=(const MonoGlyph&) = delete;
 
-	~MonoGlyph();
+	~MonoGlyph() noexcept;
 
 	int start();
 

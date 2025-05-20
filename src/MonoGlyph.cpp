@@ -21,14 +21,11 @@ MonoGlyph::MonoGlyph()
 	terminal_.enableRawMode();
 
 	initSignalFD();
-	initTimerFD(30);
+	initTimerFD(5);
 }
 
 MonoGlyph::~MonoGlyph()
 {
-	if (sigfd_ != -1) close(sigfd_);
-	if (timerfd_ != -1) close(timerfd_);
-
 	terminal_.disableRawMode();
 	terminal_.restore();
 }
@@ -69,15 +66,6 @@ int MonoGlyph::start()
 
 
 // === private methods ===
-void MonoGlyph::timer(int sec) const noexcept
-{
-	using namespace std::chrono;
-
-	auto end = high_resolution_clock::now() + seconds(sec);
-	while (high_resolution_clock::now() < end) {}
-}
-
-
 MonoGlyph::State MonoGlyph::handleMenu()
 {
 	return State::Exit;
@@ -129,35 +117,61 @@ void MonoGlyph::initSignalFD()
 	sigset_t mask{};
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGWINCH);
-	sigprocmask(SIG_BLOCK, &mask, nullptr);
-	sigfd_ = signalfd(-1, &mask, SFD_CLOEXEC);
+	if (sigprocmask(SIG_BLOCK, &mask, nullptr) == -1) {
+		throw std::system_error(errno, std::generic_category(), "sigprocmask failed");
+	}
+
+	int fd = signalfd(-1, &mask, SFD_CLOEXEC);
+	if (fd == -1) {
+		throw std::system_error(errno, std::generic_category(), "signalfd failed");
+	}
+
+	sigfd_ = FileDescriptor(fd);
 }
 
 void MonoGlyph::initTimerFD(unsigned int fps)
 {
-	timerfd_ = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+	int fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+	if (fd == -1) {
+		throw std::system_error(errno, std::generic_category(), "timerfd_create failed");
+	}
+
 	itimerspec its{};
 	its.it_value.tv_nsec = 1'000'000'000 / fps;
 	its.it_interval = its.it_value;
-	timerfd_settime(timerfd_, 0, &its, nullptr);
+	if (timerfd_settime(fd, 0, &its, nullptr) == -1) {
+		throw std::system_error(errno, std::generic_category(), "timerfd_settime failed");
+	}
+
+	timerfd_ = FileDescriptor(fd);
 }
+
 
 void MonoGlyph::eventLoop(std::function<void()> onTimeout,
 			  std::function<void()> onResize,
 			  std::function<bool()> shouldQuit)
 {
 	struct pollfd fds[2];
-	fds[0].fd = sigfd_; fds[0].events = POLLIN;
-	fds[1].fd = timerfd_; fds[1].events = POLLIN;
+	fds[0].fd = sigfd_.get(); fds[0].events = POLLIN;
+	fds[1].fd = timerfd_.get(); fds[1].events = POLLIN;
 
 	while (!shouldQuit()) {
-		poll(fds, 2, -1);
+		if (poll(fds, 2, -1) == -1) {
+			if (errno == EINTR) continue;
+			throw std::system_error(errno, std::generic_category(), "poll failed");
+		}
 		if (fds[0].revents & POLLIN) {
-			signalfd_siginfo si; read(sigfd_, &si, sizeof(si));
+			signalfd_siginfo si;
+			if (read(sigfd_.get(), &si, sizeof(si)) != sizeof(si)) {
+				throw std::system_error(errno, std::generic_category(), "read sigfd failed");
+			}
 			onResize();
 		}
 		if (fds[1].revents & POLLIN) {
-			uint64_t exp; read(timerfd_, &exp, sizeof(exp));
+			uint64_t exp;
+			if (read(timerfd_.get(), &exp, sizeof(exp)) != sizeof(exp)) {
+				throw std::system_error(errno, std::generic_category(), "read timerfd failed");
+			}
 			onTimeout();
 		}
 	}
