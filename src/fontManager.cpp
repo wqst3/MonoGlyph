@@ -6,10 +6,8 @@
 
 // === public methods ===
 FontManager::FontManager(const std::filesystem::path& fontsDir)
-  : fontsDir_(fontsDir)
-{
-	load();
-}
+  : fontsDir_(fontsDir) {}
+
 
 void FontManager::load()
 {

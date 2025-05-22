@@ -8,6 +8,7 @@
 #include "fileDescriptor.h"
 
 #include <functional>
+#include <thread>
 
 class MonoGlyph
 {
@@ -25,11 +26,14 @@ class MonoGlyph
 	FileDescriptor sigfd_;
 	FileDescriptor timerfd_;
 
-	State handleMenu();
+    	std::thread loadThread_;
+    	std::atomic<bool> fontsLoaded_{false};
+	
     	State handleLoading();
+	State handleMenu();
     	State handleTyping();
 
-	void drawLoadingFrame();
+	void drawLoadingFrame(bool);
 	bool loadingDone();
 	void onResize();
 

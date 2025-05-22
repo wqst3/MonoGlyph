@@ -21,11 +21,22 @@ MonoGlyph::MonoGlyph()
 	terminal_.enableRawMode();
 
 	initSignalFD();
-	initTimerFD(5);
+	initTimerFD(10);
+
+	loadThread_ = std::thread([this]() {
+		try {
+			fManager_.load();
+		} catch (const std::exception& e ) {
+			std::cerr << "Font load error: " << e.what() << std::endl;
+		}
+		fontsLoaded_ = true;
+	});
 }
 
 MonoGlyph::~MonoGlyph()
 {
+	if (loadThread_.joinable()) loadThread_.join();
+
 	terminal_.disableRawMode();
 	terminal_.restore();
 }
@@ -66,19 +77,20 @@ int MonoGlyph::start()
 
 
 // === private methods ===
-MonoGlyph::State MonoGlyph::handleMenu()
-{
-	return State::Exit;
-}
-
 MonoGlyph::State MonoGlyph::handleLoading()
 {
 	eventLoop(
-		[&](){ drawLoadingFrame(); },
-		[&](){ onResize(); drawLoadingFrame(); },
+		[&](){ drawLoadingFrame(true); },
+		[&](){ onResize(); drawLoadingFrame(false); },
 		[&](){ return loadingDone(); }
 	);
+	if (loadThread_.joinable()) loadThread_.join();
 	return State::Menu;
+}
+
+MonoGlyph::State MonoGlyph::handleMenu()
+{
+	return State::Exit;
 }
 
 MonoGlyph::State MonoGlyph::handleTyping()
@@ -87,12 +99,13 @@ MonoGlyph::State MonoGlyph::handleTyping()
 }
 
 
-void MonoGlyph::drawLoadingFrame()
+void MonoGlyph::drawLoadingFrame(bool next)
 {
 	static int frame = 0;
-	const char spinner[] = {'|', '/', '-', '\\'};
+	const char* spinner[] = {"❤•⋅⋅•❤", "❤❤•⋅⋅•", "•❤❤•⋅⋅", "⋅•❤❤•⋅", "⋅⋅•❤❤•", "•⋅⋅•❤❤"};
 
-	drawer_.drawPixel(0, 0, spinner[frame++ % 4]);
+	Size size = terminal_.size();
+	drawer_.drawString((size.x - 7) / 2, (size.y - 2) / 2, spinner[(frame += next) % 6]);
 
 	terminal_.clear();
 	sBuffer_.flush();
@@ -102,7 +115,8 @@ bool MonoGlyph::loadingDone()
 {
 	using namespace std::chrono;
 	static auto startTime = steady_clock::now();
-	return (steady_clock::now() - startTime) > seconds(5);
+
+	return fontsLoaded_.load() && (steady_clock::now() - startTime) > seconds(15);
 }
 
 void MonoGlyph::onResize()
