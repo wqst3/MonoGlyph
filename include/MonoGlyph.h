@@ -29,12 +29,25 @@ class MonoGlyph
     	std::thread loadThread_;
     	std::atomic<bool> fontsLoaded_{false};
 	
+	// loading
     	State handleLoading();
-	State handleMenu();
-    	State handleTyping();
-
 	void drawLoadingFrame(bool);
 	bool loadingDone();
+	
+	// menu
+	State handleMenu();
+	void drawMenu();
+	void upMenuDraw(Size);
+	void restartButton(Size);
+	void mainLetter(Size);
+	void leftLetter(Size);
+	void rightLetter(Size);
+	void onInput(char);
+	bool menuDone();
+
+	// typing
+    	State handleTyping();
+	
 	void onResize();
 
 	void initSignalFD();
@@ -42,6 +55,7 @@ class MonoGlyph
 
 	void eventLoop(std::function<void()>,
 		       std::function<void()>,
+		       std::function<void(char)>,
 		       std::function<bool()>);
 
 public:

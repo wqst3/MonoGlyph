@@ -6,6 +6,7 @@
 #include <sys/signalfd.h>
 #include <sys/timerfd.h>
 #include <poll.h>
+#include <locale>
 
 // === public methods ===
 MonoGlyph::MonoGlyph()
@@ -20,8 +21,11 @@ MonoGlyph::MonoGlyph()
 	terminal_.clear();
 	terminal_.enableRawMode();
 
+	std::setlocale(LC_ALL, "");
+	std::wcout.imbue(std::locale(""));
+
 	initSignalFD();
-	initTimerFD(10);
+	initTimerFD(30);
 
 	loadThread_ = std::thread([this]() {
 		try {
@@ -77,48 +81,6 @@ int MonoGlyph::start()
 
 
 // === private methods ===
-MonoGlyph::State MonoGlyph::handleLoading()
-{
-	eventLoop(
-		[&](){ drawLoadingFrame(true); },
-		[&](){ onResize(); drawLoadingFrame(false); },
-		[&](){ return loadingDone(); }
-	);
-	if (loadThread_.joinable()) loadThread_.join();
-	return State::Menu;
-}
-
-MonoGlyph::State MonoGlyph::handleMenu()
-{
-	return State::Exit;
-}
-
-MonoGlyph::State MonoGlyph::handleTyping()
-{
-	return State::Exit;
-}
-
-
-void MonoGlyph::drawLoadingFrame(bool next)
-{
-	static int frame = 0;
-	const char* spinner[] = {"❤•⋅⋅•❤", "❤❤•⋅⋅•", "•❤❤•⋅⋅", "⋅•❤❤•⋅", "⋅⋅•❤❤•", "•⋅⋅•❤❤"};
-
-	Size size = terminal_.size();
-	drawer_.drawString((size.x - 7) / 2, (size.y - 2) / 2, spinner[(frame += next) % 6]);
-
-	terminal_.clear();
-	sBuffer_.flush();
-}
-
-bool MonoGlyph::loadingDone()
-{
-	using namespace std::chrono;
-	static auto startTime = steady_clock::now();
-
-	return fontsLoaded_.load() && (steady_clock::now() - startTime) > seconds(15);
-}
-
 void MonoGlyph::onResize()
 {
 	Size size = terminal_.updateSize();
@@ -163,14 +125,16 @@ void MonoGlyph::initTimerFD(unsigned int fps)
 
 void MonoGlyph::eventLoop(std::function<void()> onTimeout,
 			  std::function<void()> onResize,
+			  std::function<void(char)> onInput,
 			  std::function<bool()> shouldQuit)
 {
-	struct pollfd fds[2];
+	struct pollfd fds[3];
 	fds[0].fd = sigfd_.get(); fds[0].events = POLLIN;
 	fds[1].fd = timerfd_.get(); fds[1].events = POLLIN;
+	fds[2].fd = STDIN_FILENO; fds[2].events = POLLIN;
 
-	while (!shouldQuit()) {
-		if (poll(fds, 2, -1) == -1) {
+	while (shouldQuit()) {
+		if (poll(fds, 3, -1) == -1) {
 			if (errno == EINTR) continue;
 			throw std::system_error(errno, std::generic_category(), "poll failed");
 		}
@@ -188,6 +152,15 @@ void MonoGlyph::eventLoop(std::function<void()> onTimeout,
 			}
 			onTimeout();
 		}
+		if (fds[2].revents & POLLIN) {
+            		char ch;
+            		ssize_t len = read(STDIN_FILENO, &ch, 1);
+            		if (len == 1) {
+                		onInput(ch);
+            		} else if (len == -1) {
+                		throw std::system_error(errno, std::generic_category(), "read stdin failed");
+            		}
+        	}
 	}
 }
 
