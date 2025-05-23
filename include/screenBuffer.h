@@ -6,7 +6,7 @@ class ScreenBuffer
 {
 	using Size = Point<int>;
 
-	char* buffer_;
+	wchar_t* buffer_;
 	Size size_;
 
 	void allocate(int, int) noexcept;
@@ -23,11 +23,11 @@ public:
 	~ScreenBuffer() noexcept;
 
 	void resize(int, int) noexcept;
-	void clear(char = ' ') noexcept;
+	void clear(wchar_t = L' ') noexcept;
 	void flush() const noexcept;
 
-	const char& at(int, int) const noexcept;
-	char& at(int, int) noexcept;
+	const wchar_t& at(int, int) const noexcept;
+	wchar_t& at(int, int) noexcept;
 
 	Size size() const noexcept { return size_; }
 

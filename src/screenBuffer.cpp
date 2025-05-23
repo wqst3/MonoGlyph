@@ -40,28 +40,27 @@ void ScreenBuffer::resize(int cols, int rows) noexcept
 	clear();
 }
 
-void ScreenBuffer::clear(char fillChar) noexcept
+void ScreenBuffer::clear(wchar_t fillChar) noexcept
 {
 	if (buffer_)
-		std::memset(buffer_, fillChar, size_.x * size_.y);
+		std::fill_n(buffer_, size_.x * size_.y, fillChar);
 }
 
 void ScreenBuffer::flush() const noexcept
 {
 	if (!buffer_) return;
 
-	std::cout.write(buffer_, static_cast<std::streamsize>(size_.x * size_.y));
-
-	std::cout.flush();
+	std::wcout.write(buffer_, static_cast<std::streamsize>(size_.x * size_.y));
+	std::wcout.flush();
 }
 
 
-const char& ScreenBuffer::at(int x, int y) const noexcept
+const wchar_t& ScreenBuffer::at(int x, int y) const noexcept
 {
 	return buffer_[y * size_.x + x];
 }
 
-char& ScreenBuffer::at(int x, int y) noexcept
+wchar_t& ScreenBuffer::at(int x, int y) noexcept
 {
 	return buffer_[y * size_.x + x];
 }
@@ -70,7 +69,7 @@ char& ScreenBuffer::at(int x, int y) noexcept
 // === private methods ===
 void ScreenBuffer::allocate(int cols, int rows) noexcept
 {
-	buffer_ = new char[cols * rows];
+	buffer_ = new wchar_t[cols * rows];
 }
 
 void ScreenBuffer::deallocate() noexcept

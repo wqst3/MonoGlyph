@@ -6,7 +6,7 @@
 Drawer::Drawer(ScreenBuffer& sb) noexcept : sBuffer_(sb) {}
 
 
-void Drawer::drawPixel(int x, int y, char c) noexcept
+void Drawer::drawPixel(int x, int y, wchar_t c) noexcept
 {
 	Size size = sBuffer_.size();
 
@@ -14,7 +14,7 @@ void Drawer::drawPixel(int x, int y, char c) noexcept
 		sBuffer_.at(x, y) = c;
 }
 
-void Drawer::drawLine(int x1, int y1, int x2, int y2, char c) noexcept
+void Drawer::drawLine(int x1, int y1, int x2, int y2, wchar_t c) noexcept
 {
 	bool steep = std::abs(y2 - y1) > std::abs(x2 - x1);
 	if (steep) {
@@ -47,13 +47,7 @@ void Drawer::drawLine(int x1, int y1, int x2, int y2, char c) noexcept
 	}
 }
 
-
-void Drawer::drawLetter(int x, int y, char letter) noexcept
-{
-	drawPixel(x, y, letter);
-}
-
-void Drawer::drawString(int x, int y, const char* s) noexcept
+void Drawer::drawString(int x, int y, const wchar_t* s) noexcept
 {
 	while (*s)
 	{
@@ -63,7 +57,7 @@ void Drawer::drawString(int x, int y, const char* s) noexcept
 	}
 }
 
-void Drawer::drawView(int x, int y, const std::vector<Line>& lines, char c) noexcept
+void Drawer::drawView(int x, int y, const std::vector<Line>& lines, wchar_t c) noexcept
 {
 	Size size = sBuffer_.size();
 	

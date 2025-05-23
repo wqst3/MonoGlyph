@@ -14,11 +14,11 @@ class Drawer
 public:
 	Drawer(ScreenBuffer&) noexcept;
 
-	void drawPixel(int, int, char) noexcept;
-	void drawLine(int, int, int, int, char) noexcept;
-	void drawLetter(int, int, char) noexcept;
-	void drawString(int, int, const char*) noexcept;
-	void drawView(int, int, const std::vector<Line>&, char) noexcept;
+	void drawPixel(int, int, wchar_t) noexcept;
+	void drawLine(int, int, int, int, wchar_t) noexcept;
+	Size drawDynamicLetter(int, int, wchar_t) noexcept;
+	void drawString(int, int, const wchar_t*) noexcept;
+	void drawView(int, int, const std::vector<Line>&, wchar_t) noexcept;
 	void drawBuffer(int, int, ScreenBuffer&) noexcept;
 
 };
