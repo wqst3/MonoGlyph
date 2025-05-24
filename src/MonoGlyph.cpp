@@ -85,6 +85,7 @@ void MonoGlyph::onResize()
 {
 	Size size = terminal_.updateSize();
 	sBuffer_.resize(size.x, size.y);
+	terminal_.clear();
 }
 
 

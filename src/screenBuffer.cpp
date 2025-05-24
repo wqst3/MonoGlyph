@@ -6,13 +6,13 @@
 
 // === public methods ===
 ScreenBuffer::ScreenBuffer() noexcept
-  : buffer_(nullptr), size_{0, 0}
+  : buffer_(nullptr), prevBuffer_(nullptr), size_{0, 0}
 {
 	resize(0, 0);
 }
 
 ScreenBuffer::ScreenBuffer(int cols, int rows) noexcept
-  : buffer_(nullptr), size_{0, 0}
+  : buffer_(nullptr), prevBuffer_(nullptr), size_{0, 0}
 {
 	resize(cols, rows);
 }
@@ -23,6 +23,12 @@ ScreenBuffer::ScreenBuffer(Size size) noexcept
 ScreenBuffer::~ScreenBuffer() noexcept
 {
 	deallocate();
+}
+
+
+void ScreenBuffer::syncBuffers() const noexcept
+{
+	std::memcpy(prevBuffer_, buffer_, sizeof(wchar_t) * size_.x * size_.y);
 }
 
 
@@ -48,10 +54,19 @@ void ScreenBuffer::clear(wchar_t fillChar) noexcept
 
 void ScreenBuffer::flush() const noexcept
 {
-	if (!buffer_) return;
+	if (!buffer_ || !prevBuffer_) return;
 
-	std::wcout.write(buffer_, static_cast<std::streamsize>(size_.x * size_.y));
-	std::wcout.flush();
+    	for (int y = 0; y < size_.y; ++y) {
+        	for (int x = 0; x < size_.x; ++x) {
+            		int i = y * size_.x + x;
+            		if (buffer_[i] != prevBuffer_[i]) {
+                		std::wcout << L"\033[" << (y + 1) << L";" << (x + 1) << L"H";
+                		std::wcout << buffer_[i];
+			}
+		}
+    	}
+
+    	std::wcout.flush();
 }
 
 
@@ -70,11 +85,14 @@ wchar_t& ScreenBuffer::at(int x, int y) noexcept
 void ScreenBuffer::allocate(int cols, int rows) noexcept
 {
 	buffer_ = new wchar_t[cols * rows];
+	prevBuffer_ = new wchar_t[cols * rows];
 }
 
 void ScreenBuffer::deallocate() noexcept
 {
 	delete [] buffer_;
+	delete [] prevBuffer_;
 	buffer_ = nullptr;
+	prevBuffer_ = nullptr;
 }
 

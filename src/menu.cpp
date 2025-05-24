@@ -2,13 +2,12 @@
 
 MonoGlyph::State MonoGlyph::handleMenu()
 {
-	bool once = true;
 	bool quit = true;
 
 	eventLoop(
-		[&](){ if (once) { drawMenu(); once = false; } },
+		[&](){ drawMenu(); },
 		[&](){ onResize(); drawMenu(); },
-		[&](char ch){ if (ch == 'q') quit = false; drawer_.drawPixel(10, 10, ch); terminal_.clear(); sBuffer_.flush(); },
+		[&](char ch){ if (ch == 'q') quit = false; },
 		[&](){ return quit; }
 	);
 
@@ -18,7 +17,8 @@ MonoGlyph::State MonoGlyph::handleMenu()
 void MonoGlyph::drawMenu()
 {
 	Size size = terminal_.size();
-	sBuffer_.clear();
+
+	sBuffer_.syncBuffers();
 
 	upMenuDraw(size);
 	restartButton(size);
@@ -27,7 +27,6 @@ void MonoGlyph::drawMenu()
 	leftLetter(size);
 	rightLetter(size);
 
-	terminal_.clear();
 	sBuffer_.flush();
 }
 

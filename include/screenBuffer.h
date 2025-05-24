@@ -7,6 +7,7 @@ class ScreenBuffer
 	using Size = Point<int>;
 
 	wchar_t* buffer_;
+	wchar_t* prevBuffer_;
 	Size size_;
 
 	void allocate(int, int) noexcept;
@@ -21,6 +22,8 @@ public:
 	ScreenBuffer& operator=(const ScreenBuffer&) = delete;
 
 	~ScreenBuffer() noexcept;
+
+	void syncBuffers() const noexcept;
 
 	void resize(int, int) noexcept;
 	void clear(wchar_t = L' ') noexcept;
