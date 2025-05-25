@@ -13,7 +13,23 @@ void MonoGlyph::updateLetters()
 	static std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(0, len - 1);
 
+	leftLetter_ = ' ';
 	mainLetter_ = letters[dis(gen)];
+	rightLetter_ = letters[dis(gen)];
+}
+
+void MonoGlyph::newLetter()
+{
+	auto engFont = fManager_.get("english");
+	const std::string letters = engFont->getLetters();
+
+	size_t len = letters.size();
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, len - 1);
+	
+	leftLetter_ = mainLetter_;
+	mainLetter_ = rightLetter_;
 	rightLetter_ = letters[dis(gen)];
 }
 
@@ -40,6 +56,7 @@ void MonoGlyph::drawMenu()
 
 	mainLetter(size);
 	rightLetter(size);
+	leftLetter(size);
 
 	sBuffer_.flush();
 }
@@ -82,9 +99,11 @@ void MonoGlyph::mainLetter(Size size)
 	ScreenBuffer mainLetter((size.x - 20) / 3, (size.y - 6) / 2);
 	Drawer mainLetterDrawer(mainLetter);	
 
-	auto mainGlyph = engFont->get(mainLetter_);
+	if (mainLetter_ != ' ') {
+		auto mainGlyph = engFont->get(mainLetter_);
+		mainLetterDrawer.drawView(0, 0, mainGlyph.segments, L'-');
+	}
 
-	mainLetterDrawer.drawView(0, 0, mainGlyph.segments, L'-');
 	drawer_.drawBuffer((size.x - (size.x - 20) / 3) / 2, (size.y - (size.y - 6) / 2) / 2, mainLetter);
 }
 
@@ -95,9 +114,11 @@ void MonoGlyph::leftLetter(Size size)
 	ScreenBuffer letter((size.x - 20) / 4.5f, (size.y - 6) / 3);
 	Drawer letterDrawer(letter);
 
-	auto leftGlyph = engFont->get(leftLetter_);
+	if (leftLetter_ != ' ') {
+		auto leftGlyph = engFont->get(leftLetter_);
+		letterDrawer.drawView(0, 0, leftGlyph.segments, L'-');
+	}
 
-	letterDrawer.drawView(0, 0, leftGlyph.segments, L'-');
 	drawer_.drawBuffer((size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }
 
@@ -108,42 +129,64 @@ void MonoGlyph::rightLetter(Size size)
 	ScreenBuffer letter((size.x - 20) / 4.5f, (size.y - 6) / 3);
 	Drawer letterDrawer(letter);
 
-	auto rightGlyph = engFont->get(rightLetter_);
+	if (rightLetter_ != ' ') {
+		auto rightGlyph = engFont->get(rightLetter_);
+		letterDrawer.drawView(0, 0, rightGlyph.segments, L'-');
+	}
 
-	letterDrawer.drawView(0, 0, rightGlyph.segments, L'-');
 	drawer_.drawBuffer(size.x - (size.x - 20) / 4.5f - (size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }
 
 void MonoGlyph::menuInput(char ch)
 {
-	switch (ch)
+	switch (currentState_)
 	{
-		case '\t':
-			currentState_ = State::Restart;
-			break;
-		case '\r':
-		case '\n':
-			switch (currentState_)
+		case State::Restart:
+			switch(ch)
 			{
-				case State::Restart:
+				case '\r':
+				case '\n':
 					updateLetters();
 					currentState_ = State::Menu;
+					break;
 
+				case 27: // esc
+					currentState_ = State::Menu;
 					break;
 				default:
 					break;
 			}
 			break;
-		case 27: // esc
-			switch (currentState_)
+
+		case State::Menu:
+			switch(ch)
 			{
-				case State::Restart:
-					currentState_ = State::Menu;
+				case '\t':
+					currentState_ = State::Restart;
 					break;
-				case State::Menu:
+				case 27: // esc
 					currentState_ = State::Exit;
 					break;
+				case 'i':
+					currentState_ = State::Infinite;
 				default:
+					break;
+			}
+			break;
+
+		case State::Infinite:
+			switch(ch)
+			{
+				case '\t':
+					currentState_ = State::Restart;
+					break;
+				case 27: // esc
+					updateLetters();
+					currentState_ = State::Menu;
+					break;
+				default:
+					if (ch == mainLetter_)
+						newLetter();
 					break;
 			}
 			break;

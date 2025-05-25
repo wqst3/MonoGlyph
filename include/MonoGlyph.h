@@ -29,7 +29,7 @@ class MonoGlyph
 	std::thread loadThread_;
 	std::atomic<bool> fontsLoaded_{false};
 
-	char mainLetter_, leftLetter_, rightLetter_;
+	char mainLetter_ = ' ', leftLetter_ = ' ', rightLetter_ = ' ';
 	
 	// loading
 	State handleLoading();
@@ -39,6 +39,7 @@ class MonoGlyph
 	// menu
 	State handleMenu();
 	void updateLetters();
+	void newLetter();
 	void drawMenu();
 	void upMenuDraw(Size);
 	void restartButton(Size);
