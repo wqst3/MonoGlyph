@@ -26,6 +26,8 @@ class Font
 public:
 	explicit Font(const std::filesystem::path&);
 
+	const std::string getLetters() const noexcept;
+
 	const Glyph& get(char) const;
 	const Glyph* getIfExists(char) const noexcept;
 

@@ -11,6 +11,15 @@ Font::Font(const std::filesystem::path& path)
 	parseFontFile(path);
 }
 
+const std::string Font::getLetters() const noexcept
+{
+	std::string letters;
+	letters.reserve(glyphs_.size());
+	for (const auto& [key, _] : glyphs_)
+		letters.push_back(key);
+	return letters;
+}
+
 const Glyph& Font::get(char c) const
 {
 	return glyphs_.at(c);
