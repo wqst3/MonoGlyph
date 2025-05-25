@@ -1,13 +1,14 @@
 #pragma once
 
 #include "commonTypes.h"
+#include "pixel.h"
 
 class ScreenBuffer
 {
 	using Size = Point<int>;
 
-	wchar_t* buffer_;
-	wchar_t* prevBuffer_;
+	Pixel* buffer_;
+	Pixel* prevBuffer_;
 	Size size_;
 
 	void allocate(int, int) noexcept;
@@ -26,11 +27,11 @@ public:
 	void syncBuffers() const noexcept;
 
 	void resize(int, int) noexcept;
-	void clear(wchar_t = L' ') noexcept;
+	void clear(Pixel = L' ') noexcept;
 	void flush() const noexcept;
 
-	const wchar_t& at(int, int) const noexcept;
-	wchar_t& at(int, int) noexcept;
+	const Pixel& at(int, int) const noexcept;
+	Pixel& at(int, int) noexcept;
 
 	Size size() const noexcept { return size_; }
 

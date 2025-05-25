@@ -1,14 +1,31 @@
 #include "MonoGlyph.h"
 
+#include <random>
+#include <cstring>
+
+void MonoGlyph::updateLetters()
+{
+	auto engFont = fManager_.get("english");
+	const std::string letters = engFont->getLetters();
+
+	size_t len = letters.size();
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, len - 1);
+
+	mainLetter_ = letters[dis(gen)];
+	rightLetter_ = letters[dis(gen)];
+}
+
 MonoGlyph::State MonoGlyph::handleMenu()
 {
-	bool quit = true;
+	updateLetters();
 
 	eventLoop(
 		[&](){ drawMenu(); },
 		[&](){ onResize(); drawMenu(); },
-		[&](char ch){ if (ch == 'q') quit = false; },
-		[&](){ return quit; }
+		[&](char ch){ menuInput(ch); },
+		[&](){ return currentState_ != State::Exit; }
 	);
 
 	return State::Exit;
@@ -17,14 +34,11 @@ MonoGlyph::State MonoGlyph::handleMenu()
 void MonoGlyph::drawMenu()
 {
 	Size size = terminal_.size();
-
-	sBuffer_.syncBuffers();
-
+	
 	upMenuDraw(size);
 	restartButton(size);
 
 	mainLetter(size);
-	leftLetter(size);
 	rightLetter(size);
 
 	sBuffer_.flush();
@@ -41,7 +55,7 @@ void MonoGlyph::upMenuDraw(Size size)
 	// y: 1
 	drawer_.drawPixel(0, 1, L'│');
 	drawer_.drawPixel(size.x - 1, 1, L'│');
-	drawer_.drawString((size.x - 38) / 2, 1, L"english | timer letter | 15 30 60 120");
+	drawer_.drawString((size.x - 46) / 2, 1, L"english | timer letter infinite | 15 30 60 120");
 
 	// y: 2
 	drawer_.drawPixel(0, 2, L'╰');
@@ -54,6 +68,11 @@ void MonoGlyph::restartButton(Size size)
 	drawer_.drawString((size.x - 5) / 2, size.y - 3, L"╭───╮");
 	drawer_.drawString((size.x - 5) / 2, size.y - 2, L"│ ↻ │");
 	drawer_.drawString((size.x - 5) / 2, size.y - 1, L"╰───╯");
+
+	if (currentState_ == State::Restart)
+	{
+		drawer_.drawPixel((size.x - 1) / 2, size.y - 2, Pixel{L'↻', Color::Black, BgColor::White});
+	}
 }
 
 void MonoGlyph::mainLetter(Size size)
@@ -63,9 +82,9 @@ void MonoGlyph::mainLetter(Size size)
 	ScreenBuffer mainLetter((size.x - 20) / 3, (size.y - 6) / 2);
 	Drawer mainLetterDrawer(mainLetter);	
 
-	auto mainGlyph = engFont->get('A');
+	auto mainGlyph = engFont->get(mainLetter_);
 
-	mainLetterDrawer.drawView(0, 0, mainGlyph.segments, L'╳');
+	mainLetterDrawer.drawView(0, 0, mainGlyph.segments, L'-');
 	drawer_.drawBuffer((size.x - (size.x - 20) / 3) / 2, (size.y - (size.y - 6) / 2) / 2, mainLetter);
 }
 
@@ -76,27 +95,62 @@ void MonoGlyph::leftLetter(Size size)
 	ScreenBuffer letter((size.x - 20) / 4.5f, (size.y - 6) / 3);
 	Drawer letterDrawer(letter);
 
-	auto leftGlyph = engFont->get('B');
+	auto leftGlyph = engFont->get(leftLetter_);
 
-	letterDrawer.drawView(0, 0, leftGlyph.segments, L'╳');
+	letterDrawer.drawView(0, 0, leftGlyph.segments, L'-');
 	drawer_.drawBuffer((size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }
 
 void MonoGlyph::rightLetter(Size size)
 {
 	auto engFont = fManager_.get("english");
-	
+
 	ScreenBuffer letter((size.x - 20) / 4.5f, (size.y - 6) / 3);
 	Drawer letterDrawer(letter);
 
-	auto rightGlyph = engFont->get('C');
+	auto rightGlyph = engFont->get(rightLetter_);
 
-	letterDrawer.drawView(0, 0, rightGlyph.segments, L'╳');
+	letterDrawer.drawView(0, 0, rightGlyph.segments, L'-');
 	drawer_.drawBuffer(size.x - (size.x - 20) / 4.5f - (size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }
 
-void MonoGlyph::onInput(char ch)
-{}
+void MonoGlyph::menuInput(char ch)
+{
+	switch (ch)
+	{
+		case '\t':
+			currentState_ = State::Restart;
+			break;
+		case '\r':
+		case '\n':
+			switch (currentState_)
+			{
+				case State::Restart:
+					updateLetters();
+					currentState_ = State::Menu;
+
+					break;
+				default:
+					break;
+			}
+			break;
+		case 27: // esc
+			switch (currentState_)
+			{
+				case State::Restart:
+					currentState_ = State::Menu;
+					break;
+				case State::Menu:
+					currentState_ = State::Exit;
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+	}
+}
 
 bool MonoGlyph::menuDone()
 {

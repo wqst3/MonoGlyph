@@ -15,7 +15,7 @@ class MonoGlyph
 	using Line = Vector<float>;
 	using Size = Point<int>;
 
-	enum class State { Loading, Menu, Typing, Exit };
+	enum class State { Loading, Menu, Infinite, Restart, Exit };
 	State currentState_;
 
 	Terminal terminal_;
@@ -26,27 +26,30 @@ class MonoGlyph
 	FileDescriptor sigfd_;
 	FileDescriptor timerfd_;
 
-    	std::thread loadThread_;
-    	std::atomic<bool> fontsLoaded_{false};
+	std::thread loadThread_;
+	std::atomic<bool> fontsLoaded_{false};
+
+	char mainLetter_, leftLetter_, rightLetter_;
 	
 	// loading
-    	State handleLoading();
+	State handleLoading();
 	void drawLoadingFrame(bool);
 	bool loadingDone();
 	
 	// menu
 	State handleMenu();
+	void updateLetters();
 	void drawMenu();
 	void upMenuDraw(Size);
 	void restartButton(Size);
 	void mainLetter(Size);
 	void leftLetter(Size);
 	void rightLetter(Size);
-	void onInput(char);
+	void menuInput(char);
 	bool menuDone();
 
 	// typing
-    	State handleTyping();
+	State handleTyping();
 	
 	void onResize();
 

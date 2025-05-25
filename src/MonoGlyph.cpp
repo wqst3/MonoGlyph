@@ -58,7 +58,7 @@ int MonoGlyph::start()
 				case State::Menu:
 					currentState_ = handleMenu();
 					break;
-				case State::Typing:
+				case State::Infinite:
 					currentState_ = handleTyping();
 					break;
 				default:

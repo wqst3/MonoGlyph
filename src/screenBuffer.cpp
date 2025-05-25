@@ -28,7 +28,7 @@ ScreenBuffer::~ScreenBuffer() noexcept
 
 void ScreenBuffer::syncBuffers() const noexcept
 {
-	std::memcpy(prevBuffer_, buffer_, sizeof(wchar_t) * size_.x * size_.y);
+	std::memcpy(prevBuffer_, buffer_, sizeof(Pixel) * size_.x * size_.y);
 }
 
 
@@ -46,7 +46,7 @@ void ScreenBuffer::resize(int cols, int rows) noexcept
 	clear();
 }
 
-void ScreenBuffer::clear(wchar_t fillChar) noexcept
+void ScreenBuffer::clear(Pixel fillChar) noexcept
 {
 	if (buffer_)
 		std::fill_n(buffer_, size_.x * size_.y, fillChar);
@@ -56,26 +56,37 @@ void ScreenBuffer::flush() const noexcept
 {
 	if (!buffer_ || !prevBuffer_) return;
 
-    	for (int y = 0; y < size_.y; ++y) {
-        	for (int x = 0; x < size_.x; ++x) {
-            		int i = y * size_.x + x;
-            		if (buffer_[i] != prevBuffer_[i]) {
-                		std::wcout << L"\033[" << (y + 1) << L";" << (x + 1) << L"H";
-                		std::wcout << buffer_[i];
+	for (int y = 0; y < size_.y; ++y) {
+		for (int x = 0; x < size_.x; ++x) {
+			int i = y * size_.x + x;
+
+			const Pixel& curr = buffer_[i];
+			const Pixel& prev = prevBuffer_[i];
+
+			if (curr != prev) {
+				std::wcout << L"\033[" << (y + 1) << L";" << (x + 1) << L"H";
+
+				std::wcout << L"\033["
+					   << static_cast<int>(curr.fg) << L";"
+					   << static_cast<int>(curr.bg) << L"m";
+
+				std::wcout << curr.ch;
+
+				std::wcout << L"\033[0m";
 			}
 		}
-    	}
-
-    	std::wcout.flush();
+	}
+	syncBuffers();
+	std::wcout.flush();
 }
 
 
-const wchar_t& ScreenBuffer::at(int x, int y) const noexcept
+const Pixel& ScreenBuffer::at(int x, int y) const noexcept
 {
 	return buffer_[y * size_.x + x];
 }
 
-wchar_t& ScreenBuffer::at(int x, int y) noexcept
+Pixel& ScreenBuffer::at(int x, int y) noexcept
 {
 	return buffer_[y * size_.x + x];
 }
@@ -84,8 +95,8 @@ wchar_t& ScreenBuffer::at(int x, int y) noexcept
 // === private methods ===
 void ScreenBuffer::allocate(int cols, int rows) noexcept
 {
-	buffer_ = new wchar_t[cols * rows];
-	prevBuffer_ = new wchar_t[cols * rows];
+	buffer_ = new Pixel[cols * rows];
+	prevBuffer_ = new Pixel[cols * rows];
 }
 
 void ScreenBuffer::deallocate() noexcept
