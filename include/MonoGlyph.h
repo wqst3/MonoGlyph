@@ -5,7 +5,8 @@
 #include "screenBuffer.h"
 #include "drawer.h"
 #include "fontManager.h"
-#include "fileDescriptor.h"
+#include "signalFD.hpp"
+#include "timerFD.hpp"
 
 #include <functional>
 #include <thread>
@@ -23,8 +24,8 @@ class MonoGlyph
 	Drawer drawer_;
 	FontManager fManager_;
 
-	FileDescriptor sigfd_;
-	FileDescriptor timerfd_;
+	SignalFDHandler signalFDHandler_;
+	TimerFDHandler timerFDHandler_;
 
 	std::thread loadThread_;
 	std::atomic<bool> fontsLoaded_{false};
@@ -53,9 +54,6 @@ class MonoGlyph
 	State handleTyping();
 	
 	void onResize();
-
-	void initSignalFD();
-	void initTimerFD(unsigned int);
 
 	void eventLoop(std::function<void()>,
 		       std::function<void()>,

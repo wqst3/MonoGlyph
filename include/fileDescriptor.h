@@ -19,4 +19,6 @@ public:
 	bool valid() const noexcept;
 	void reset(int = -1) noexcept;
 	void close() noexcept;
+
 };
+
