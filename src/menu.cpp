@@ -1,4 +1,5 @@
 #include "MonoGlyph.h"
+#include "eventLoop.h"
 
 #include <random>
 #include <cstring>
@@ -37,12 +38,34 @@ MonoGlyph::State MonoGlyph::handleMenu()
 {
 	updateLetters();
 
-	eventLoop(
-		[&](){ drawMenu(); },
-		[&](){ onResize(); drawMenu(); },
-		[&](char ch){ menuInput(ch); },
-		[&](){ return currentState_ != State::Exit; }
-	);
+	EventLoop eventloop;
+
+	int sigfd = signalFDHandler_.fd().get();
+	eventloop.addFd(sigfd, POLLIN, [this, sigfd]() {
+		signalfd_siginfo si;
+		if (read(sigfd, &si, sizeof(si)) != sizeof(si)) {
+			throw std::system_error(errno, std::generic_category(), "read sigfd failed");
+		}
+		onResize();
+		drawMenu();
+	});
+
+	int timerfd = timerFDHandler_.fd().get();
+	eventloop.addFd(timerfd, POLLIN, [this, timerfd]() {
+		uint64_t exp;
+		if (read(timerfd, &exp, sizeof(exp)) != sizeof(exp)) {
+			throw std::system_error(errno, std::generic_category(), "read timerfd failed");
+		}
+		drawMenu();
+	});
+
+	eventloop.watchStdin([this](char ch) {
+		menuInput(ch);
+	});
+
+	eventloop.run([this]() {
+		return currentState_ == State::Exit;
+	});
 
 	return State::Exit;
 }

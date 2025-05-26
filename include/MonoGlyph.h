@@ -55,11 +55,6 @@ class MonoGlyph
 	
 	void onResize();
 
-	void eventLoop(std::function<void()>,
-		       std::function<void()>,
-		       std::function<void(char)>,
-		       std::function<bool()>);
-
 public:
 	MonoGlyph();
 

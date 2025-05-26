@@ -2,12 +2,7 @@
 
 MonoGlyph::State MonoGlyph::handleLoading()
 {
-	eventLoop(
-		[&](){ drawLoadingFrame(true); },
-		[&](){ onResize(); drawLoadingFrame(false); },
-		[&](char ch){ },
-		[&](){ return loadingDone(); }
-	);
+
 	if (loadThread_.joinable()) loadThread_.join();
 
 	return State::Menu;
