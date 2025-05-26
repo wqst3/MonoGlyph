@@ -26,20 +26,15 @@ MonoGlyph::MonoGlyph()
 	std::setlocale(LC_ALL, "");
 	std::wcout.imbue(std::locale(""));
 
-	loadThread_ = std::thread([this]() {
-		try {
-			fManager_.load();
-		} catch (const std::exception& e ) {
-			std::cerr << "Font load error: " << e.what() << std::endl;
-		}
-		fontsLoaded_ = true;
-	});
+	try {
+		fManager_.load();
+	} catch (const std::exception& e ) {
+		std::cerr << "Font load error: " << e.what() << std::endl;
+	}
 }
 
 MonoGlyph::~MonoGlyph()
 {
-	if (loadThread_.joinable()) loadThread_.join();
-
 	terminal_.disableRawMode();
 	terminal_.restore();
 }

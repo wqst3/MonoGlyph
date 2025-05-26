@@ -27,9 +27,6 @@ class MonoGlyph
 	SignalFDHandler signalFDHandler_;
 	TimerFDHandler timerFDHandler_;
 
-	std::thread loadThread_;
-	std::atomic<bool> fontsLoaded_{false};
-
 	char mainLetter_ = ' ', leftLetter_ = ' ', rightLetter_ = ' ';
 	
 	// loading
