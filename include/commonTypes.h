@@ -12,5 +12,10 @@ struct Vector {
 	T y1;
 	T x2;
 	T y2;
+
+	bool operator==(const Vector<T>& other) const {
+		return x1 == other.x1 && y1 == other.y1 &&
+			   x2 == other.x2 && y2 == other.y2;
+	}
 };
 
