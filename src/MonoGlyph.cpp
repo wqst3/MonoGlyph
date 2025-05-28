@@ -1,17 +1,17 @@
 #include "MonoGlyph.h"
+#include "stateMenu.h"
 
 #include <iostream>
-#include <chrono>
 #include <signal.h>
 #include <sys/signalfd.h>
 #include <sys/timerfd.h>
 #include <poll.h>
 #include <locale>
+#include <random>
 
 // === public methods ===
 MonoGlyph::MonoGlyph()
-  : currentState_(State::Loading)
-  , terminal_()
+  : terminal_()
   , sBuffer_(terminal_.size())
   , drawer_(sBuffer_)
   , fManager_()
@@ -31,6 +31,9 @@ MonoGlyph::MonoGlyph()
 	} catch (const std::exception& e ) {
 		std::cerr << "Font load error: " << e.what() << std::endl;
 	}
+
+	changeState(std::make_unique<StateMenu>());
+	updateLetters();
 }
 
 MonoGlyph::~MonoGlyph()
@@ -42,25 +45,10 @@ MonoGlyph::~MonoGlyph()
 int MonoGlyph::start()
 {
 	try {
-		while (currentState_ != State::Exit)
+		while (currentState_)
 		{
-			switch (currentState_) 
-			{
-				case State::Loading:
-					currentState_ = handleLoading();
-					break;
-				case State::Menu:
-					currentState_ = handleMenu();
-					break;
-				case State::Infinite:
-					currentState_ = handleTyping();
-					break;
-				default:
-					currentState_ = State::Exit;
-					break;
-			}
+			currentState_->onEvent(*this);
 		}
-
 		return 0;
 	}
 	catch (const std::system_error& e) {
@@ -73,12 +61,62 @@ int MonoGlyph::start()
 	}
 }
 
-
-// === private methods ===
 void MonoGlyph::onResize()
 {
 	Size size = terminal_.updateSize();
 	sBuffer_.resize(size.x, size.y);
 	terminal_.clear();
 }
+
+void MonoGlyph::updateLetters()
+{
+	auto engFont = fManager_.get("english");
+	const std::string letters = engFont->getLetters();
+
+	size_t len = letters.size();
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, len - 1);
+
+	mainLetter_ = engFont->get(letters[dis(gen)]);
+	rightLetter_ = engFont->get(letters[dis(gen)]);
+	leftLetter_.segments.clear();
+}
+
+void MonoGlyph::newLetter()
+{
+	auto engFont = fManager_.get("english");
+	const std::string letters = engFont->getLetters();
+
+	size_t len = letters.size();
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, len - 1);
+	
+	leftLetter_ = mainLetter_;
+	mainLetter_ = rightLetter_;
+	rightLetter_ = engFont->get(letters[dis(gen)]);
+}
+
+
+void MonoGlyph::changeState(std::unique_ptr<State> newState)
+{
+	currentState_ = std::move(newState);
+	if (currentState_) currentState_->onEnter(*this);
+}
+
+
+State* MonoGlyph::currentState() noexcept { return currentState_.get(); }
+
+Terminal& MonoGlyph::terminal() noexcept { return terminal_; }
+ScreenBuffer& MonoGlyph::screenBuffer() noexcept { return sBuffer_; }
+Drawer& MonoGlyph::drawer() noexcept { return drawer_; }
+FontManager& MonoGlyph::fonts() noexcept { return fManager_; }
+
+SignalFDHandler& MonoGlyph::signalFDHandler() noexcept { return signalFDHandler_; }
+TimerFDHandler& MonoGlyph::timerFDHandler() noexcept { return timerFDHandler_; }
+
+Glyph& MonoGlyph::leftLetter() noexcept { return leftLetter_; }
+Glyph& MonoGlyph::mainLetter() noexcept { return mainLetter_; }
+Glyph& MonoGlyph::rightLetter() noexcept { return rightLetter_; }
 

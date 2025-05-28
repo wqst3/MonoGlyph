@@ -15,10 +15,11 @@ add_executable(MonoGlyph main.cpp
 			 src/font.cpp
 			 src/fontManager.cpp
 			 src/fileDescriptor.cpp
-			 src/loading.cpp
-			 src/menu.cpp
-			 src/typing.cpp
-		 	 src/eventLoop.cpp)
+		 	 src/eventLoop.cpp
+			 src/interfaceDrawer.cpp
+		 	 src/stateMenu.cpp
+			 src/stateRestart.cpp
+			 src/stateInfinite.cpp)
 
 file(COPY ${CMAKE_SOURCE_DIR}/fonts DESTINATION ${CMAKE_BINARY_DIR})
 

@@ -1,7 +1,7 @@
 #include "MonoGlyph.h"
 #include "eventLoop.h"
 
-#include <random>
+
 #include <cstring>
 
 void MonoGlyph::updateLetters()

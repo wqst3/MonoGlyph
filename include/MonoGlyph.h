@@ -7,17 +7,14 @@
 #include "fontManager.h"
 #include "signalFD.hpp"
 #include "timerFD.hpp"
-
-#include <functional>
-#include <thread>
+#include "state.h"
 
 class MonoGlyph
 {
 	using Line = Vector<float>;
 	using Size = Point<int>;
 
-	enum class State { Loading, Menu, Infinite, Restart, Exit };
-	State currentState_;
+	std::unique_ptr<State> currentState_;
 
 	Terminal terminal_;
 	ScreenBuffer sBuffer_;
@@ -27,30 +24,9 @@ class MonoGlyph
 	SignalFDHandler signalFDHandler_;
 	TimerFDHandler timerFDHandler_;
 
-	char mainLetter_ = ' ', leftLetter_ = ' ', rightLetter_ = ' ';
-	
-	// loading
-	State handleLoading();
-	void drawLoadingFrame(bool);
-	bool loadingDone();
-	
-	// menu
-	State handleMenu();
-	void updateLetters();
-	void newLetter();
-	void drawMenu();
-	void upMenuDraw(Size);
-	void restartButton(Size);
-	void mainLetter(Size);
-	void leftLetter(Size);
-	void rightLetter(Size);
-	void menuInput(char);
-	bool menuDone();
-
-	// typing
-	State handleTyping();
-	
-	void onResize();
+	Glyph leftLetter_;
+	Glyph mainLetter_;
+	Glyph rightLetter_;
 
 public:
 	MonoGlyph();
@@ -61,6 +37,25 @@ public:
 	~MonoGlyph() noexcept;
 
 	int start();
+	void onResize();
+	void updateLetters();
+	void newLetter();
+
+	void changeState(std::unique_ptr<State>);
+
+	State* currentState() noexcept;
+
+	Terminal& terminal() noexcept;
+	ScreenBuffer& screenBuffer() noexcept;
+	Drawer& drawer() noexcept;
+	FontManager& fonts() noexcept;
+
+	SignalFDHandler& signalFDHandler() noexcept;
+	TimerFDHandler& timerFDHandler() noexcept;
+
+	Glyph& leftLetter() noexcept;
+	Glyph& mainLetter() noexcept;
+	Glyph& rightLetter() noexcept;
 
 };
 
