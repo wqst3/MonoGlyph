@@ -54,18 +54,17 @@ void StateInfinite::input(MonoGlyph& MonoGlyph, char ch)
 		case '\t':
 			MonoGlyph.changeState(std::make_unique<StateRestart>());
 			break;
-		case 27: // esc
-			MonoGlyph.updateLetters();
+		case 27: // esc	
 			MonoGlyph.changeState(std::make_unique<StateMenu>());
 			break;
 		default:
 			auto engFont = MonoGlyph.fonts().get("english");
 			const std::string letters = engFont->getLetters();
 
-			if (engFont->get(ch).segments == MonoGlyph.mainLetter().segments)
-			{
-				MonoGlyph.newLetter();
-			}
+			auto Glyph = engFont->getIfExists(ch);
+			if (Glyph)
+				MonoGlyph.newLetter(Glyph->segments == MonoGlyph.mainLetter().segments);
+
 			break;
 	}
 }

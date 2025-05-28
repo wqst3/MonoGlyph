@@ -14,6 +14,8 @@ class MonoGlyph
 	using Line = Vector<float>;
 	using Size = Point<int>;
 
+	bool correctLetterInput_;
+
 	std::unique_ptr<State> currentState_;
 
 	Terminal terminal_;
@@ -36,10 +38,12 @@ public:
 
 	~MonoGlyph() noexcept;
 
+	bool correctLetterInput() const noexcept;
+
 	int start();
 	void onResize();
 	void updateLetters();
-	void newLetter();
+	void newLetter(bool);
 
 	void changeState(std::unique_ptr<State>);
 

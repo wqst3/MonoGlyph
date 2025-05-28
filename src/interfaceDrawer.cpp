@@ -1,6 +1,7 @@
 #include "interfaceDrawer.h"
 #include "stateID.h"
 #include "color.h"
+#include "pixel.h"
 
 // === public methods ===
 InterfaceDrawer::InterfaceDrawer(MonoGlyph& MonoGlyph)
@@ -30,7 +31,18 @@ void InterfaceDrawer::upMenu()
 	// y: 1
 	drawer.drawPixel(0, 1, L'│');
 	drawer.drawPixel(size.x - 1, 1, L'│');
-	drawer.drawString((size.x - 46) / 2, 1, L"english | timer letter infinite | 15 30 60 120");
+
+	int x = (size.x - 46) / 2;
+	int y = 1;
+
+	drawer.drawString(x, y, L"english | timer letter ");
+
+	if (MonoGlyph_.currentState()->id() == StateID::Infinite)
+		drawer.drawString(x + 23, y, L"infinite", Color::Black, BgColor::White);
+	else
+		drawer.drawString(x + 23, y, L"infinite");
+
+	drawer.drawString(x + 31, y, L" | 15 30 60 120");
 
 	// y: 2
 	drawer.drawPixel(0, 2, L'╰');
@@ -76,7 +88,10 @@ void InterfaceDrawer::leftLetter()
 	ScreenBuffer letter((size.x - 20) / 4.5f, (size.y - 6) / 3);
 	Drawer letterDrawer(letter);
 
-	letterDrawer.drawView(0, 0, leftGlyph.segments, L'-');
+	if (MonoGlyph_.correctLetterInput())
+		letterDrawer.drawView(0, 0, leftGlyph.segments, Pixel{L'-', Color::Green, BgColor::Default});
+	else
+		letterDrawer.drawView(0, 0, leftGlyph.segments, Pixel{L'-', Color::Red, BgColor::Default});
 
 	drawer.drawBuffer((size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }

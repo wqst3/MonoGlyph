@@ -42,6 +42,10 @@ MonoGlyph::~MonoGlyph()
 	terminal_.restore();
 }
 
+
+bool MonoGlyph::correctLetterInput() const noexcept { return correctLetterInput_; }
+
+
 int MonoGlyph::start()
 {
 	try {
@@ -83,8 +87,10 @@ void MonoGlyph::updateLetters()
 	leftLetter_.segments.clear();
 }
 
-void MonoGlyph::newLetter()
+void MonoGlyph::newLetter(bool correct)
 {
+	correctLetterInput_ = correct;
+
 	auto engFont = fManager_.get("english");
 	const std::string letters = engFont->getLetters();
 
