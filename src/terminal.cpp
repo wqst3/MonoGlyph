@@ -59,7 +59,7 @@ void Terminal::disableRawMode()
 
 void Terminal::altBuffer()
 {
-	std::system("tput smcup");
+	write(STDOUT_FILENO, "\033[?1049h", 8);
 }
 
 void Terminal::hideCur()
@@ -76,6 +76,6 @@ void Terminal::clear()
 void Terminal::restore()
 {	
 	write(STDOUT_FILENO, "\x1b[?25h", 6);   // Показать курсор
-	std::system("tput rmcup");		// Выйти из альтернативного буфера
+	write(STDOUT_FILENO, "\033[?1049l", 8);	// Выйти из альтернативного буфера
 }
 
