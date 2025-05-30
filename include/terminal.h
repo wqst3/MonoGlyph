@@ -1,35 +1,95 @@
 #pragma once
 
-#include "commonTypes.h"
-
 #include <termios.h>
+
 #include <cstddef>
 
-class Terminal
-{
-	using Size = Point<int>;
+#include "commonTypes.h"
 
-	termios orig_termios_;
-	termios raw_;
+/**
+ * @class Terminal
+ * @brief Управляет настройками терминала, включая режимы ввода, буферы и
+ * отображение курсора.
+ *
+ * Класс предоставляет методы для переключения терминала в сырой режим,
+ * управления альтернативным буфером, скрытия и отображения курсора, а также
+ * очистки экрана. Также позволяет обновлять и получать текущий размер
+ * терминала.
+ */
+class Terminal {
+  using Size = Point<int>;
 
-	Size size_;
+  termios orig_termios_;  ///< Оригинальные настройки терминала
+  termios raw_;           ///< Настройки терминала для сырого режима
 
-	void safeWrite(int, const char*, size_t, const char*);
+  Size size_;  ///< Текущий размер терминала
 
-public:
-	Terminal();
+  /**
+   * @brief Безопасная запись данных в файловый дескриптор.
+   * @param fd Файловый дескриптор для записи.
+   * @param data Указатель на данные для записи.
+   * @param len Длина данных для записи.
+   * @param desc Описание операции для сообщений об ошибках.
+   * @throws std::runtime_error В случае ошибки записи.
+   */
+  void safeWrite(int fd, const char *data, size_t len, const char *desc);
 
-	Size updateSize();
+ public:
+  /**
+   * @brief Конструктор класса Terminal.
+   *
+   * Инициализирует объект и обновляет текущий размер терминала.
+   */
+  Terminal();
 
-	void enableRawMode();
-	void disableRawMode();
+  /**
+   * @brief Обновляет и возвращает текущий размер терминала.
+   * @return Текущий размер терминала в символах.
+   * @throws std::system_error В случае ошибки получения размера терминала.
+   */
+  Size updateSize();
 
-	void altBuffer();
-	void hideCur();
-	void clear();
-	void restore();
+  /**
+   * @brief Включает сырой режим терминала.
+   *
+   * Отключает канонический режим, эхо и сигналы, позволяя более низкоуровневый
+   * контроль ввода.
+   * @throws std::system_error В случае ошибки установки атрибутов терминала.
+   */
+  void enableRawMode();
 
-	Size size() const noexcept { return size_; }
+  /**
+   * @brief Отключает сырой режим и восстанавливает оригинальные настройки
+   * терминала.
+   */
+  void disableRawMode();
 
+  /**
+   * @brief Переключает терминал в альтернативный буфер.
+   *
+   * Позволяет отображать временное содержимое, не затрагивая основной экран.
+   */
+  void altBuffer();
+
+  /**
+   * @brief Скрывает курсор в терминале.
+   */
+  void hideCur();
+
+  /**
+   * @brief Очищает экран терминала и перемещает курсор в левый верхний угол.
+   */
+  void clear();
+
+  /**
+   * @brief Восстанавливает терминал из альтернативного буфера и отображает
+   * курсор.
+   */
+  void restore();
+
+  /**
+   * @brief Получает текущий размер терминала.
+   * @return Размер терминала в символах.
+   */
+  Size size() const noexcept { return size_; }
 };
-

@@ -1,19 +1,16 @@
 #pragma once
 
-#include "stateID.h"
-
 #include <memory>
+
+#include "stateID.h"
 
 class MonoGlyph;
 
-class State
-{
+class State {
+ public:
+  virtual ~State() = default;
 
-public:
-	virtual ~State() = default;
-
-	virtual void onEnter(MonoGlyph&) {}
-	virtual void onEvent(MonoGlyph&) = 0;
-	virtual StateID id() const = 0;
+  virtual void onEnter(MonoGlyph &) {}
+  virtual void onEvent(MonoGlyph &) = 0;
+  virtual StateID id() const = 0;
 };
-
