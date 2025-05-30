@@ -119,14 +119,3 @@ void InterfaceDrawer::rightLetter()
 	drawer.drawBuffer(size.x - (size.x - 20) / 4.5f - (size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }
 
-
-void InterfaceDrawer::timer(int seconds)
-{
-	Drawer& drawer = MonoGlyph_.drawer();
-	Size size = MonoGlyph_.terminal().size();
-
-	wchar_t buffer[6] {};
-	swprintf(buffer, sizeof(buffer)/sizeof(wchar_t), L"%u", seconds);
-
-	drawer.drawString(size.x / 2, size.y / 5, buffer);
-}
