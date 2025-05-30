@@ -3,6 +3,7 @@
 #include "commonTypes.h"
 
 #include <termios.h>
+#include <cstddef>
 
 class Terminal
 {
@@ -12,6 +13,8 @@ class Terminal
 	termios raw_;
 
 	Size size_;
+
+	void safeWrite(int, const char*, size_t, const char*);
 
 public:
 	Terminal();

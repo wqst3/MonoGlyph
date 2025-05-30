@@ -59,23 +59,32 @@ void Terminal::disableRawMode()
 
 void Terminal::altBuffer()
 {
-	write(STDOUT_FILENO, "\033[?1049h", 8);
+	safeWrite(STDOUT_FILENO, "\033[?1049h", 8, "altBuffer");
 }
 
 void Terminal::hideCur()
 {
-	write(STDOUT_FILENO, "\x1b[?25l", 6);
+	safeWrite(STDOUT_FILENO, "\x1b[?25l", 6, "hideCur");
 }
 
 void Terminal::clear()
 {
-	write(STDOUT_FILENO, "\x1b[2J", 4);     // Очистить весь экран
-	write(STDOUT_FILENO, "\x1b[H", 3);      // Курсор в начало
+	safeWrite(STDOUT_FILENO, "\x1b[2J", 4, "clear");     // Очистить весь экран
+	safeWrite(STDOUT_FILENO, "\x1b[H", 3, "clear");      // Курсор в начало
 }
 
 void Terminal::restore()
 {	
-	write(STDOUT_FILENO, "\x1b[?25h", 6);   // Показать курсор
-	write(STDOUT_FILENO, "\033[?1049l", 8);	// Выйти из альтернативного буфера
+	safeWrite(STDOUT_FILENO, "\x1b[?25h", 6, "restore");   // Показать курсор
+	safeWrite(STDOUT_FILENO, "\033[?1049l", 8, "restore");	// Выйти из альтернативного буфера
+}
+
+
+// === private methods ===
+void Terminal::safeWrite(int fd, const char* data, size_t len, const char* desc)
+{
+	if (write(fd, data, len) != static_cast<ssize_t>(len)) {
+		throw std::runtime_error(std::string("Terminal write failed: ") + desc);
+	}
 }
 
