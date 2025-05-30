@@ -7,7 +7,6 @@
 #include <sys/timerfd.h>
 #include <poll.h>
 #include <locale>
-#include <random>
 
 // === public methods ===
 MonoGlyph::MonoGlyph()
@@ -15,7 +14,7 @@ MonoGlyph::MonoGlyph()
   , sBuffer_(terminal_.size())
   , drawer_(sBuffer_)
   , fManager_()
-  , gen_(rd_)
+  , gen_(rd_())
   , signalFDHandler_(SIGWINCH)
   , timerFDHandler_(30)
 {

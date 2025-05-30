@@ -9,13 +9,12 @@
 #include "timerFD.hpp"
 #include "state.h"
 
+#include <random>
+
 class MonoGlyph
 {
 	using Line = Vector<float>;
 	using Size = Point<int>;
-
-	std::random_device rd_;
-	std::mt19937 gen_;
 
 	bool correctLetterInput_;
 
@@ -25,6 +24,9 @@ class MonoGlyph
 	ScreenBuffer sBuffer_;
 	Drawer drawer_;
 	FontManager fManager_;
+
+	std::random_device rd_;
+	std::mt19937 gen_;
 
 	SignalFDHandler signalFDHandler_;
 	TimerFDHandler timerFDHandler_;
