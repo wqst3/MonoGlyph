@@ -1,9 +1,10 @@
 #pragma once
 
 enum class StateID {
-	Loading,
 	Menu,
 	Infinite,
-	Restart,
-	Exit
+	ChooseTimer,
+	Timer,
+	Letter,
+	Restart
 };

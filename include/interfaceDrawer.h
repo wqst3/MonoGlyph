@@ -19,6 +19,7 @@ public:
 	void mainLetter();
 	void leftLetter();
 	void rightLetter();
+	void timer(int);
 
 };
 

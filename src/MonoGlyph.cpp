@@ -45,7 +45,6 @@ MonoGlyph::~MonoGlyph()
 
 bool MonoGlyph::correctLetterInput() const noexcept { return correctLetterInput_; }
 
-
 int MonoGlyph::start()
 {
 	try {

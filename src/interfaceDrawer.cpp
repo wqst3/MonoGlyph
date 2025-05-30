@@ -35,14 +35,23 @@ void InterfaceDrawer::upMenu()
 	int x = (size.x - 46) / 2;
 	int y = 1;
 
-	drawer.drawString(x, y, L"english | timer letter ");
+	drawer.drawString(x, y, L"english | timer letter infinite | 15 30 60 120");
 
-	if (MonoGlyph_.currentState()->id() == StateID::Infinite)
-		drawer.drawString(x + 23, y, L"infinite", Color::Black, BgColor::White);
-	else
-		drawer.drawString(x + 23, y, L"infinite");
-
-	drawer.drawString(x + 31, y, L" | 15 30 60 120");
+	switch (MonoGlyph_.currentState()->id())
+	{
+		case StateID::Timer:
+		case StateID::ChooseTimer:
+			drawer.drawString(x + 10, y, L"timer", Color::Black, BgColor::White);
+			break;
+		case StateID::Letter:
+			drawer.drawString(x + 16, y, L"letter", Color::Black, BgColor::White);
+			break;
+		case StateID::Infinite:
+			drawer.drawString(x + 23, y, L"infinite", Color::Black, BgColor::White);
+			break;
+		default:
+			break;
+	}
 
 	// y: 2
 	drawer.drawPixel(0, 2, L'╰');
@@ -110,3 +119,14 @@ void InterfaceDrawer::rightLetter()
 	drawer.drawBuffer(size.x - (size.x - 20) / 4.5f - (size.x - (size.x - 20) / 4.5f) / 6, (size.y - (size.y - 6) / 3) / 2, letter);
 }
 
+
+void InterfaceDrawer::timer(int seconds)
+{
+	Drawer& drawer = MonoGlyph_.drawer();
+	Size size = MonoGlyph_.terminal().size();
+
+	wchar_t buffer[6] {};
+	swprintf(buffer, sizeof(buffer)/sizeof(wchar_t), L"%u", seconds);
+
+	drawer.drawString(size.x / 2, size.y / 5, buffer);
+}
