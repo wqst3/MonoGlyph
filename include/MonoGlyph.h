@@ -14,6 +14,9 @@ class MonoGlyph
 	using Line = Vector<float>;
 	using Size = Point<int>;
 
+	std::random_device rd_;
+	std::mt19937 gen_;
+
 	bool correctLetterInput_;
 
 	std::unique_ptr<State> currentState_;

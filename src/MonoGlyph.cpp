@@ -15,6 +15,7 @@ MonoGlyph::MonoGlyph()
   , sBuffer_(terminal_.size())
   , drawer_(sBuffer_)
   , fManager_()
+  , gen_(rd_)
   , signalFDHandler_(SIGWINCH)
   , timerFDHandler_(30)
 {
@@ -77,12 +78,10 @@ void MonoGlyph::updateLetters()
 	const std::string letters = engFont->getLetters();
 
 	size_t len = letters.size();
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(0, len - 1);
 
-	mainLetter_ = engFont->get(letters[dis(gen)]);
-	rightLetter_ = engFont->get(letters[dis(gen)]);
+	mainLetter_ = engFont->get(letters[dis(gen_)]);
+	rightLetter_ = engFont->get(letters[dis(gen_)]);
 	leftLetter_.segments.clear();
 }
 
@@ -94,13 +93,11 @@ void MonoGlyph::newLetter(bool correct)
 	const std::string letters = engFont->getLetters();
 
 	size_t len = letters.size();
-	static std::random_device rd;
-	static std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(0, len - 1);
 	
 	leftLetter_ = mainLetter_;
 	mainLetter_ = rightLetter_;
-	rightLetter_ = engFont->get(letters[dis(gen)]);
+	rightLetter_ = engFont->get(letters[dis(gen_)]);
 }
 
 
