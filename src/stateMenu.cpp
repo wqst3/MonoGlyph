@@ -51,16 +51,16 @@ void StateMenu::draw(MonoGlyph &MonoGlyph) {
 
 void StateMenu::input(MonoGlyph &MonoGlyph, char ch) {
   switch (ch) {
-    case '\t':
-      MonoGlyph.changeState(std::make_unique<StateRestart>());
-      break;
-    case 27:  // esc
-      MonoGlyph.changeState(nullptr);
-      break;
-    case 'i':
-      MonoGlyph.changeState(std::make_unique<StateInfinite>());
-      break;
-    default:
-      break;
+  case '\t':
+    MonoGlyph.changeState(std::make_unique<StateRestart>());
+    break;
+  case 27: // esc
+    MonoGlyph.changeState(nullptr);
+    break;
+  case 'i':
+    MonoGlyph.changeState(std::make_unique<StateInfinite>());
+    break;
+  default:
+    break;
   }
 }

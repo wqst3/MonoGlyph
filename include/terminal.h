@@ -1,95 +1,81 @@
 #pragma once
 
-#include <termios.h>
-
 #include <cstddef>
+#include <termios.h>
 
 #include "commonTypes.h"
 
 /**
  * @class Terminal
- * @brief Управляет настройками терминала, включая режимы ввода, буферы и
- * отображение курсора.
- *
- * Класс предоставляет методы для переключения терминала в сырой режим,
- * управления альтернативным буфером, скрытия и отображения курсора, а также
- * очистки экрана. Также позволяет обновлять и получать текущий размер
- * терминала.
+ * @brief A utility class for managing terminal behavior such as raw mode,
+ * buffer control, cursor visibility, and screen clearing.
  */
 class Terminal {
   using Size = Point<int>;
 
-  termios orig_termios_;  ///< Оригинальные настройки терминала
-  termios raw_;           ///< Настройки терминала для сырого режима
+  termios orig_termios_; ///< Original terminal attributes before raw mode
+  termios raw_;          ///< Terminal attributes configured for raw mode
 
-  Size size_;  ///< Текущий размер терминала
+  Size size_; ///< Current size of the terminal
 
   /**
-   * @brief Безопасная запись данных в файловый дескриптор.
-   * @param fd Файловый дескриптор для записи.
-   * @param data Указатель на данные для записи.
-   * @param len Длина данных для записи.
-   * @param desc Описание операции для сообщений об ошибках.
-   * @throws std::runtime_error В случае ошибки записи.
+   * @brief Safely writes data to a file descriptor.
+   * @param fd File descriptor to write to.
+   * @param data Data to write.
+   * @param len Length of the data.
+   * @param desc Description of the write operation (used in error messages).
+   * @throws std::runtime_error if the write operation fails.
    */
   void safeWrite(int fd, const char *data, size_t len, const char *desc);
 
- public:
+public:
   /**
-   * @brief Конструктор класса Terminal.
-   *
-   * Инициализирует объект и обновляет текущий размер терминала.
+   * @brief Constructs a Terminal object and initializes the terminal size.
    */
   Terminal();
 
   /**
-   * @brief Обновляет и возвращает текущий размер терминала.
-   * @return Текущий размер терминала в символах.
-   * @throws std::system_error В случае ошибки получения размера терминала.
+   * @brief Updates and returns the current size of the terminal.
+   * @return The current terminal size as a Point<int> (columns x, rows y).
+   * @throws std::system_error if the terminal size cannot be retrieved.
    */
   Size updateSize();
 
   /**
-   * @brief Включает сырой режим терминала.
-   *
-   * Отключает канонический режим, эхо и сигналы, позволяя более низкоуровневый
-   * контроль ввода.
-   * @throws std::system_error В случае ошибки установки атрибутов терминала.
+   * @brief Enables raw mode for terminal input.
+   * @throws std::system_error if terminal attributes cannot be read or set.
    */
   void enableRawMode();
 
   /**
-   * @brief Отключает сырой режим и восстанавливает оригинальные настройки
-   * терминала.
+   * @brief Disables raw mode and restores original terminal settings.
    */
   void disableRawMode();
 
   /**
-   * @brief Переключает терминал в альтернативный буфер.
-   *
-   * Позволяет отображать временное содержимое, не затрагивая основной экран.
+   * @brief Switches to the alternate screen buffer.
    */
   void altBuffer();
 
   /**
-   * @brief Скрывает курсор в терминале.
+   * @brief Hides the terminal cursor.
    */
   void hideCur();
 
   /**
-   * @brief Очищает экран терминала и перемещает курсор в левый верхний угол.
+   * @brief Clears the terminal screen and moves the cursor to the home
+   * position.
    */
   void clear();
 
   /**
-   * @brief Восстанавливает терминал из альтернативного буфера и отображает
-   * курсор.
+   * @brief Restores the terminal to its original buffer and shows the cursor.
    */
   void restore();
 
   /**
-   * @brief Получает текущий размер терминала.
-   * @return Размер терминала в символах.
+   * @brief Gets the cached size of the terminal.
+   * @return Terminal size as a Point<int>.
    */
   Size size() const noexcept { return size_; }
 };

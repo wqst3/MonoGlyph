@@ -22,11 +22,13 @@ void EventLoop::run(std::function<bool()> shouldQuit) {
   while (!shouldQuit()) {
     std::vector<pollfd> pfds;
     pfds.reserve(handlers_.size());
-    for (auto &h : handlers_) pfds.push_back(h.pfd);
+    for (auto &h : handlers_)
+      pfds.push_back(h.pfd);
 
     int ret = ::poll(pfds.data(), pfds.size(), -1);
     if (ret == -1) {
-      if (errno == EINTR) continue;
+      if (errno == EINTR)
+        continue;
       throw std::system_error(errno, std::generic_category(), "poll failed");
     }
 

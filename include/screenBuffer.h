@@ -5,98 +5,100 @@
 
 /**
  * @class ScreenBuffer
- * @brief Управляет двойным буфером для отрисовки пикселей на экране.
+ * @brief Represents a 2D screen buffer for rendering characters with
+ * attributes.
  */
 class ScreenBuffer {
   using Size = Point<int>;
 
-  Pixel *buffer_;     /**< Текущий буфер пикселей. */
-  Pixel *prevBuffer_; /**< Предыдущий буфер для сравнения изменений. */
-  Size size_;         /**< Размер буфера (ширина x высота). */
+  Pixel *buffer_; ///< Pointer to the current frame buffer.
+  Pixel *
+      prevBuffer_; ///< Pointer to the previous frame buffer (used for diffing).
+  Size size_;      ///< Dimensions of the buffer (columns x rows).
 
   /**
-   * @brief Выделяет память под буферы заданного размера.
-   * @param cols Количество столбцов (ширина).
-   * @param rows Количество строк (высота).
+   * @brief Allocates memory for the buffers.
+   * @param cols Number of columns.
+   * @param rows Number of rows.
    */
   void allocate(int cols, int rows) noexcept;
 
   /**
-   * @brief Освобождает выделенную память буферов.
+   * @brief Deallocates the memory for the buffers.
    */
   void deallocate() noexcept;
 
- public:
+public:
   /**
-   * @brief Конструктор по умолчанию, создаёт пустой буфер.
+   * @brief Default constructor, creates an empty screen buffer.
    */
   ScreenBuffer() noexcept;
 
   /**
-   * @brief Конструктор с заданными размерами буфера.
-   * @param cols Количество столбцов.
-   * @param rows Количество строк.
+   * @brief Constructs a screen buffer with the specified number of columns and
+   * rows.
+   * @param cols Number of columns.
+   * @param rows Number of rows.
    */
   ScreenBuffer(int cols, int rows) noexcept;
 
   /**
-   * @brief Конструктор с заданным размером.
-   * @param size Размер буфера (ширина и высота).
+   * @brief Constructs a screen buffer using a Size object.
+   * @param size Size of the buffer (columns x rows).
    */
   ScreenBuffer(Size size) noexcept;
 
-  ScreenBuffer(const ScreenBuffer &) = delete; /**< Запрет копирования. */
-  ScreenBuffer &operator=(const ScreenBuffer &) =
-      delete; /**< Запрет присваивания. */
+  ScreenBuffer(const ScreenBuffer &) = delete; /**< Copying is disabled. */
+  ScreenBuffer &
+  operator=(const ScreenBuffer &) = delete; /**< Assignment is disabled. */
 
   /**
-   * @brief Деструктор, освобождает память буферов.
+   * @brief Destructor that frees buffer memory.
    */
   ~ScreenBuffer() noexcept;
 
   /**
-   * @brief Копирует текущий буфер в предыдущий для синхронизации.
+   * @brief Copies the current buffer to the previous buffer.
    */
   void syncBuffers() const noexcept;
 
   /**
-   * @brief Изменяет размер буфера, освобождая старую память и выделяя новую.
-   * Очищает буфер после изменения размера.
-   * @param cols Новое количество столбцов.
-   * @param rows Новое количество строк.
+   * @brief Resizes the buffer to the new dimensions.
+   * @param cols New number of columns.
+   * @param rows New number of rows.
    */
   void resize(int cols, int rows) noexcept;
 
   /**
-   * @brief Заполняет текущий буфер указанным пикселем.
-   * @param fillChar Пиксель для заполнения (по умолчанию пробел).
+   * @brief Clears the screen buffer with a specified character.
+   * @param fillChar The character to fill the buffer with. Defaults to space.
    */
   void clear(Pixel fillChar = L' ') noexcept;
 
   /**
-   * @brief Выводит на экран только изменённые пиксели с учётом цвета.
+   * @brief Outputs only the changed characters to the console.
    */
   void flush() const noexcept;
 
   /**
-   * @brief Получить пиксель по координатам (константный доступ).
-   * @param x Координата X (столбец).
-   * @param y Координата Y (строка).
-   * @return Константная ссылка на пиксель.
+   * @brief Provides read-only access to a pixel at given coordinates.
+   * @param x X coordinate (column).
+   * @param y Y coordinate (row).
+   * @return Reference to the pixel at the specified location.
    */
   const Pixel &at(int x, int y) const noexcept;
 
   /**
-   * @brief Получить пиксель по координатам (изменяемый доступ).
-   * @param x Координата X (столбец).
-   * @param y Координата Y (строка).
-   * @return Ссылка на пиксель.
+   * @brief Provides writable access to a pixel at given coordinates.
+   * @param x X coordinate (column).
+   * @param y Y coordinate (row).
+   * @return Reference to the pixel at the specified location.
    */
   Pixel &at(int x, int y) noexcept;
 
   /**
-   * @brief Возвращает текущий размер буфера.
-   * @return Объект Size с шириной и высотой.
+   * @brief Returns the size of the buffer.
+   * @return Size of the buffer (columns x rows).
    */
   Size size() const noexcept { return size_; }
 };

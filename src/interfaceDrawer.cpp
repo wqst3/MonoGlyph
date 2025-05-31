@@ -35,18 +35,11 @@ void InterfaceDrawer::upMenu() {
   drawer.drawString(x, y, L"english | timer letter infinite | 15 30 60 120");
 
   switch (MonoGlyph_.currentState()->id()) {
-    case StateID::Timer:
-    case StateID::ChooseTimer:
-      drawer.drawString(x + 10, y, L"timer", Color::Black, BgColor::White);
-      break;
-    case StateID::Letter:
-      drawer.drawString(x + 16, y, L"letter", Color::Black, BgColor::White);
-      break;
-    case StateID::Infinite:
-      drawer.drawString(x + 23, y, L"infinite", Color::Black, BgColor::White);
-      break;
-    default:
-      break;
+  case StateID::Infinite:
+    drawer.drawString(x + 23, y, L"infinite", Color::Black, BgColor::White);
+    break;
+  default:
+    break;
   }
 
   // y: 2
@@ -112,7 +105,7 @@ void InterfaceDrawer::rightLetter() {
 
   letterDrawer.drawView(0, 0, rightGlyph.segments, L'-');
 
-  drawer.drawBuffer(
-      size.x - (size.x - 20) / 4.5f - (size.x - (size.x - 20) / 4.5f) / 6,
-      (size.y - (size.y - 6) / 3) / 2, letter);
+  drawer.drawBuffer(size.x - (size.x - 20) / 4.5f -
+                        (size.x - (size.x - 20) / 4.5f) / 6,
+                    (size.y - (size.y - 6) / 3) / 2, letter);
 }

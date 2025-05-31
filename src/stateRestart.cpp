@@ -47,15 +47,15 @@ void StateRestart::draw(MonoGlyph &MonoGlyph) {
 
 void StateRestart::input(MonoGlyph &MonoGlyph, char ch) {
   switch (ch) {
-    case '\r':
-    case '\n':
-      MonoGlyph.updateLetters();
-      MonoGlyph.changeState(std::make_unique<StateMenu>());
-      break;
-    case 27:  // esc
-      MonoGlyph.changeState(std::make_unique<StateMenu>());
-      break;
-    default:
-      break;
+  case '\r':
+  case '\n':
+    MonoGlyph.updateLetters();
+    MonoGlyph.changeState(std::make_unique<StateMenu>());
+    break;
+  case 27: // esc
+    MonoGlyph.changeState(std::make_unique<StateMenu>());
+    break;
+  default:
+    break;
   }
 }

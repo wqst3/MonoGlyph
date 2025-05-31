@@ -4,63 +4,74 @@
 
 /**
  * @class FileDescriptor
- * @brief RAII-обёртка для управления файловым дескриптором Unix.
+ * @brief RAII wrapper for managing a Unix file descriptor.
+ *
+ * This class automatically closes the file descriptor when the object goes out
+ * of scope, ensuring proper resource management and preventing descriptor
+ * leaks.
  */
 class FileDescriptor {
-  int fd_;
+  int fd_; ///< The managed file descriptor.
 
- public:
+public:
   /**
-   * @brief Конструктор с параметром по умолчанию.
-   * @param fd Файловый дескриптор для управления. По умолчанию -1
-   * (недействителен).
+   * @brief Constructs a FileDescriptor managing the given descriptor.
+   * @param fd File descriptor to manage. Default is -1 (invalid descriptor).
    */
   explicit FileDescriptor(int fd = -1) noexcept;
 
   /**
-   * @brief Деструктор, автоматически закрывающий файловый дескриптор.
+   * @brief Destructor that automatically closes the managed file descriptor if
+   * valid.
    */
   ~FileDescriptor() noexcept;
 
   /**
-   * @brief Перемещающий конструктор.
-   * @param other Другой объект FileDescriptor, из которого перемещается
-   * дескриптор.
+   * @brief Move constructor.
+   * Transfers ownership of the file descriptor from another FileDescriptor
+   * object. After the move, the other object's descriptor is set to -1.
+   * @param other The other FileDescriptor to move from.
    */
-  FileDescriptor(FileDescriptor&& other) noexcept;
+  FileDescriptor(FileDescriptor &&other) noexcept;
 
   /**
-   * @brief Перемещающий оператор присваивания.
-   * @param other Другой объект FileDescriptor, из которого перемещается
-   * дескриптор.
-   * @return Ссылка на текущий объект после присваивания.
+   * @brief Move assignment operator.
+   * Closes the current descriptor (if valid), then transfers ownership
+   * from the other object. The other object's descriptor is set to -1.
+   * @param other The other FileDescriptor to move from.
+   * @return Reference to this object.
    */
-  FileDescriptor& operator=(FileDescriptor&& other) noexcept;
+  FileDescriptor &operator=(FileDescriptor &&other) noexcept;
 
-  // Копирование запрещено
-  FileDescriptor(const FileDescriptor&) = delete;
-  FileDescriptor& operator=(const FileDescriptor&) = delete;
+  /// Copy constructor is deleted to avoid copying of file descriptor ownership.
+  FileDescriptor(const FileDescriptor &) = delete;
+
+  /// Copy assignment operator is deleted to avoid copying of file descriptor
+  /// ownership.
+  FileDescriptor &operator=(const FileDescriptor &) = delete;
 
   /**
-   * @brief Получить текущий файловый дескриптор.
-   * @return Целочисленный файловый дескриптор.
+   * @brief Returns the current managed file descriptor.
+   * @return The file descriptor as an integer.
    */
   int get() const noexcept;
 
   /**
-   * @brief Проверка действительности файлового дескриптора.
-   * @return true, если дескриптор действителен; false в противном случае.
+   * @brief Checks if the file descriptor is valid.
+   * @return true if the descriptor is valid (not -1), false otherwise.
    */
   bool valid() const noexcept;
 
   /**
-   * @brief Закрыть текущий дескриптор (если он открыт) и установить новый.
-   * @param newFd Новый файловый дескриптор. По умолчанию -1.
+   * @brief Closes the currently managed descriptor (if valid) and takes
+   * ownership of a new one.
+   * @param newFd New file descriptor to manage. Default is -1 (invalid).
    */
   void reset(int newFd = -1) noexcept;
 
   /**
-   * @brief Закрывает файловый дескриптор, если он действителен.
+   * @brief Closes the managed file descriptor if it is valid.
+   * After this call, the descriptor is set to -1.
    */
   void close() noexcept;
 };

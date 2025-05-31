@@ -49,9 +49,9 @@ std::vector<std::filesystem::path> FontManager::findFontFiles() const {
   std::vector<std::filesystem::path> result;
 
   if (!std::filesystem::exists(fontsDir_)) {
-    throw std::system_error(
-        errno, std::generic_category(),
-        "Fonts directory does not exist: " + fontsDir_.string());
+    throw std::system_error(errno, std::generic_category(),
+                            "Fonts directory does not exist: " +
+                                fontsDir_.string());
   }
 
   for (const auto &entry : std::filesystem::directory_iterator(fontsDir_)) {

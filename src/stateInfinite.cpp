@@ -48,20 +48,20 @@ void StateInfinite::draw(MonoGlyph &MonoGlyph) {
 
 void StateInfinite::input(MonoGlyph &MonoGlyph, char ch) {
   switch (ch) {
-    case '\t':
-      MonoGlyph.changeState(std::make_unique<StateRestart>());
-      break;
-    case 27:  // esc
-      MonoGlyph.changeState(std::make_unique<StateMenu>());
-      break;
-    default:
-      auto engFont = MonoGlyph.fonts().get("english");
-      const std::string letters = engFont->getLetters();
+  case '\t':
+    MonoGlyph.changeState(std::make_unique<StateRestart>());
+    break;
+  case 27: // esc
+    MonoGlyph.changeState(std::make_unique<StateMenu>());
+    break;
+  default:
+    auto engFont = MonoGlyph.fonts().get("english");
+    const std::string letters = engFont->getLetters();
 
-      auto Glyph = engFont->getIfExists(ch);
-      if (Glyph)
-        MonoGlyph.newLetter(Glyph->segments == MonoGlyph.mainLetter().segments);
+    auto Glyph = engFont->getIfExists(ch);
+    if (Glyph)
+      MonoGlyph.newLetter(Glyph->segments == MonoGlyph.mainLetter().segments);
 
-      break;
+    break;
   }
 }

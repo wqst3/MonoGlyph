@@ -58,14 +58,13 @@ void Terminal::hideCur() {
 }
 
 void Terminal::clear() {
-  safeWrite(STDOUT_FILENO, "\x1b[2J", 4, "clear");  // Очистить весь экран
-  safeWrite(STDOUT_FILENO, "\x1b[H", 3, "clear");   // Курсор в начало
+  safeWrite(STDOUT_FILENO, "\x1b[2J", 4, "clear");
+  safeWrite(STDOUT_FILENO, "\x1b[H", 3, "clear");
 }
 
 void Terminal::restore() {
-  safeWrite(STDOUT_FILENO, "\x1b[?25h", 6, "restore");  // Показать курсор
-  safeWrite(STDOUT_FILENO, "\033[?1049l", 8,
-            "restore");  // Выйти из альтернативного буфера
+  safeWrite(STDOUT_FILENO, "\x1b[?25h", 6, "restore");
+  safeWrite(STDOUT_FILENO, "\033[?1049l", 8, "restore");
 }
 
 // === private methods ===

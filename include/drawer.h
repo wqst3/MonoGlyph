@@ -7,82 +7,83 @@
 
 /**
  * @class Drawer
- * @brief Класс для рисования пикселей, линий, строк и буферов на ScreenBuffer.
+ * @brief A utility class for drawing pixels, lines, strings, and buffers to a
+ * ScreenBuffer.
  */
 class Drawer {
   using Line = Vector<float>;
   using Size = Point<int>;
   ScreenBuffer &sBuffer_;
 
- public:
+public:
   /**
-   * @brief Конструктор, инициализирует Drawer с указателем на ScreenBuffer.
-   * @param sb Ссылка на ScreenBuffer, на котором будет производиться рисование.
+   * @brief Constructs a Drawer object.
+   * @param buffer Reference to a ScreenBuffer to draw on.
    */
-  Drawer(ScreenBuffer &) noexcept;
+  Drawer(ScreenBuffer &buffer) noexcept;
 
   /**
-   * @brief Рисует пиксель в заданной точке.
-   * @param x Координата X.
-   * @param y Координата Y.
-   * @param c Пиксель (цвет и символ) для рисования.
+   * @brief Draws a single pixel at the specified coordinates.
+   * @param x X-coordinate.
+   * @param y Y-coordinate.
+   * @param c Pixel color and attributes.
    */
   void drawPixel(int x, int y, const Pixel &c) noexcept;
 
   /**
-   * @brief Рисует линию между двумя точками алгоритмом Брезенхема.
-   * @param x1 Координата X начальной точки.
-   * @param y1 Координата Y начальной точки.
-   * @param x2 Координата X конечной точки.
-   * @param y2 Координата Y конечной точки.
-   * @param c Пиксель (цвет и символ) для рисования.
+   * @brief Draws a line between two points using a specified pixel.
+   * @param x1 Starting X-coordinate.
+   * @param y1 Starting Y-coordinate.
+   * @param x2 Ending X-coordinate.
+   * @param y2 Ending Y-coordinate.
+   * @param c Pixel to use for the line.
    */
   void drawLine(int x1, int y1, int x2, int y2, const Pixel &c) noexcept;
 
   /**
-   * @brief Рисует динамическую букву в заданной позиции.
-   * @param x Координата X.
-   * @param y Координата Y.
-   * @param c Пиксель для рисования буквы.
-   * @return Размер нарисованной буквы (ширина и высота).
+   * @brief Draws a dynamic letter shape at a given position.
+   * @param x X-coordinate.
+   * @param y Y-coordinate.
+   * @param c Pixel to use.
+   * @return The size of the drawn letter.
    */
   Size drawDynamicLetter(int x, int y, const Pixel &c) noexcept;
 
   /**
-   * @brief Рисует строку из массива пикселей.
-   * @param x Координата X начала строки.
-   * @param y Координата Y начала строки.
-   * @param s Указатель на массив пикселей.
+   * @brief Draws a null-terminated array of Pixel objects as a string.
+   * @param x Starting X-coordinate.
+   * @param y Starting Y-coordinate.
+   * @param s Null-terminated array of Pixels.
    */
   void drawString(int x, int y, const Pixel *s) noexcept;
 
   /**
-   * @brief Рисует строку из широких символов с заданным цветом текста и фона.
-   * @param x Координата X начала строки.
-   * @param y Координата Y начала строки.
-   * @param s Указатель на широкую строку.
-   * @param fg Цвет текста (по умолчанию Color::Default).
-   * @param bg Цвет фона (по умолчанию BgColor::Default).
+   * @brief Draws a wide-character string using foreground and background
+   * colors.
+   * @param x Starting X-coordinate.
+   * @param y Starting Y-coordinate.
+   * @param s Null-terminated wide string.
+   * @param fg Foreground color. Defaults to Color::Default.
+   * @param bg Background color. Defaults to BgColor::Default.
    */
   void drawString(int x, int y, const wchar_t *s, Color fg = Color::Default,
                   BgColor bg = BgColor::Default) noexcept;
 
   /**
-   * @brief Рисует набор линий, нормализованных относительно размера экрана.
-   * @param x Смещение по X для рисования.
-   * @param y Смещение по Y для рисования.
-   * @param lines Вектор линий (каждая линия — Vector<float> с координатами от 0
-   * до 1).
-   * @param c Пиксель для рисования линий.
+   * @brief Draws a 2D view from a vector of lines using the specified pixel.
+   * @param x X-offset.
+   * @param y Y-offset.
+   * @param lines 2D data to draw.
+   * @param c Pixel to use for drawing.
    */
   void drawView(int x, int y, const std::vector<Line> &lines,
                 const Pixel &c) noexcept;
 
   /**
-   * @brief Рисует содержимое другого ScreenBuffer в текущем ScreenBuffer.
-   * @param x Координата X, где будет нарисован буфер.
-   * @param y Координата Y, где будет нарисован буфер.
-   * @param sb Ссылка на ScreenBuffer для копирования.
+   * @brief Draws another ScreenBuffer at the specified location.
+   * @param x X-offset.
+   * @param y Y-offset.
+   * @param sb ScreenBuffer to draw.
    */
   void drawBuffer(int x, int y, ScreenBuffer &sb) noexcept;
 };

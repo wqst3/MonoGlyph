@@ -8,25 +8,25 @@
 #include "fileDescriptor.h"
 
 /**
- * @brief Обработчик сигналов с использованием signalfd.
+ * @class SignalFDHandler
+ * @brief A RAII-style wrapper around `signalfd` for handling signals using file descriptors.
  *
- * @details
- * Этот класс блокирует указанный сигнал и создает файловый дескриптор,
- * через который можно получать уведомления о поступлении этого сигнала.
- * Это позволяет обрабатывать сигналы в неблокирующем режиме,
- * интегрируя их в цикл событий.
+ * This class sets up a file descriptor that can be used to monitor a specific signal.
+ * It blocks the given signal and then creates a signalfd which can be polled or selected on.
  */
 class SignalFDHandler {
-  sigset_t mask_; ///< Маска сигналов, содержащая только один указанный сигнал.
-  FileDescriptor fd_; ///< Файловый дескриптор, связанный с signalfd.
+  sigset_t mask_;     ///< Signal mask used to block and watch the specified signal.
+  FileDescriptor fd_; ///< File descriptor for the signal.
 
  public:
   /**
-   * @brief Конструктор, блокирующий сигнал и создающий signalfd.
+   * @brief Constructs a SignalFDHandler for a given signal.
    *
-   * @param[in] signal Номер сигнала, который необходимо обрабатывать.
+   * Blocks the specified signal and creates a `signalfd` to receive it.
    *
-   * @throws std::system_error Если не удалось заблокировать сигнал или создать signalfd.
+   * @param signal The signal number to watch (e.g., SIGTERM, SIGINT).
+   *
+   * @throws std::system_error If `sigprocmask` or `signalfd` fails.
    */
   explicit SignalFDHandler(int signal) {
     sigemptyset(&mask_);
@@ -47,9 +47,9 @@ class SignalFDHandler {
   }
 
   /**
-   * @brief Получить файловый дескриптор для чтения сигналов.
+   * @brief Returns the internal file descriptor.
    *
-   * @return Ссылка на объект FileDescriptor, связанный с signalfd.
+   * @return A constant reference to the FileDescriptor object.
    */
   const FileDescriptor& fd() const noexcept { return fd_; }
 };

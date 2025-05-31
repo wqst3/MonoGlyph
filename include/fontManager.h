@@ -10,52 +10,65 @@
 #include "font.h"
 
 /**
- * @class FontManager
- * @brief Управляет загрузкой и хранением шрифтов из указанной директории.
+ * @brief Manages loading and accessing font resources.
+ *
+ * This class handles scanning a directory for font files,
+ * loading them into memory, and providing access to loaded fonts.
  */
 class FontManager {
-  std::filesystem::path fontsDir_;  ///< Директория с файлами шрифтов
+  std::filesystem::path fontsDir_; ///< Directory where font files are located
   std::unordered_map<std::string, std::shared_ptr<Font>>
-      fonts_;  ///< Загруженные шрифты (имя -> объект)
+      fonts_; ///< Map from font names to Font instances
 
   /**
-   * @brief Поиск файлов шрифтов в директории.
-   * @return Вектор путей к найденным файлам с расширением ".font".
-   * @throws std::system_error если директория не существует.
+   * @brief Find all font files in the fonts directory.
+   *
+   * Scans the configured fonts directory for files with the ".font" extension.
+   *
+   * @return A vector of paths to font files found.
+   * @throws std::system_error if the fonts directory does not exist.
    */
   std::vector<std::filesystem::path> findFontFiles() const;
 
- public:
+public:
   /**
-   * @brief Конструктор.
-   * @param fontsDir Путь к директории со шрифтами (по умолчанию "./fonts").
+   * @brief Constructs a FontManager.
+   *
+   * @param fontsDir Path to the directory containing font files.
+   *                 Defaults to "./fonts".
    */
   explicit FontManager(const std::filesystem::path &fontsDir = "./fonts");
 
   /**
-   * @brief Загружает все шрифты из директории.
-   * Очищает текущие шрифты и загружает заново.
-   * @throws std::system_error при ошибках загрузки.
+   * @brief Loads all font files from the fonts directory.
+   *
+   * Clears any previously loaded fonts and reloads fonts from disk.
+   *
+   * @throws std::system_error if fonts directory is missing or
+   *         if any font file fails to load.
    */
   void load();
 
   /**
-   * @brief Получить список имён загруженных шрифтов.
-   * @return Вектор строк с именами шрифтов.
+   * @brief Lists the names of all loaded fonts.
+   *
+   * @return A vector of font names currently loaded.
    */
   std::vector<std::string> listFontNames() const;
 
   /**
-   * @brief Получить указатель на шрифт по имени.
-   * @param fontName Имя шрифта.
-   * @return shared_ptr на Font, или nullptr если не найден.
+   * @brief Gets a loaded font by name.
+   *
+   * @param fontName The name of the font to retrieve.
+   * @return A shared pointer to the Font if found, otherwise nullptr.
    */
   std::shared_ptr<Font> get(const std::string &fontName) const;
 
   /**
-   * @brief Проверить, загружен ли шрифт с данным именем.
-   * @param fontName Имя шрифта.
-   * @return true если шрифт найден, иначе false.
+   * @brief Checks if a font is loaded.
+   *
+   * @param fontName The name of the font to check.
+   * @return true if the font is loaded, false otherwise.
    */
   bool has(const std::string &fontName) const noexcept;
 };

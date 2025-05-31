@@ -7,24 +7,24 @@
 #include "fileDescriptor.h"
 
 /**
- * @brief Обработчик таймера с использованием timerfd.
+ * @class TimerFDHandler
+ * @brief A RAII wrapper for Linux timer file descriptors to generate periodic events.
  *
- * @details
- * Этот класс создает файловый дескриптор таймера, который генерирует
- * периодические события с заданной частотой кадров (FPS). Это позволяет
- * интегрировать таймер в цикл событий, используя такие механизмы, как
- * epoll или select.
+ * This class sets up a timer using `timerfd_create` that fires at a rate specified
+ * by frames per second (FPS). It manages the lifetime of the file descriptor and
+ * provides access to it.
  */
 class TimerFDHandler {
-  FileDescriptor fd_; ///< Файловый дескриптор, связанный с timerfd.
+  FileDescriptor fd_;  ///< File descriptor associated with the timer.
 
  public:
   /**
-   * @brief Конструктор, создающий и настраивающий timerfd.
+   * @brief Constructs a TimerFDHandler with a specified frames per second rate.
    *
-   * @param[in] fps Частота кадров (кадров в секунду), с которой должен срабатывать таймер.
+   * This sets up a timer that triggers periodically according to the provided FPS.
    *
-   * @throws std::system_error Если не удалось создать или настроить timerfd.
+   * @param fps Frames per second, used to compute timer interval.
+   * @throws std::system_error if timer creation or configuration fails.
    */
   explicit TimerFDHandler(unsigned int fps) {
     int fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
@@ -46,9 +46,9 @@ class TimerFDHandler {
   }
 
   /**
-   * @brief Получить файловый дескриптор для чтения событий таймера.
+   * @brief Gets the file descriptor associated with the timer.
    *
-   * @return Ссылка на объект FileDescriptor, связанный с timerfd.
+   * @return A const reference to the FileDescriptor instance.
    */
   const FileDescriptor& fd() const noexcept { return fd_; }
 };

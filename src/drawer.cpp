@@ -9,7 +9,8 @@ void Drawer::drawPixel(int x, int y, const Pixel &c) noexcept {
   Size size = sBuffer_.size();
 
   if (x < size.x && x >= 0 && y < size.y && y >= 0)
-    if (sBuffer_.at(x, y) != c) sBuffer_.at(x, y) = c;
+    if (sBuffer_.at(x, y) != c)
+      sBuffer_.at(x, y) = c;
 }
 
 void Drawer::drawLine(int x1, int y1, int x2, int y2, const Pixel &c) noexcept {

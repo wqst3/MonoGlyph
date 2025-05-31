@@ -1,5 +1,11 @@
 #pragma once
 
+/**
+ * @brief Enum representing standard and bright ANSI foreground text colors.
+ *
+ * These values can be used to set the color of terminal output text
+ * using ANSI escape codes.
+ */
 enum class Color {
   Default = 39,
   Black = 30,
@@ -21,6 +27,12 @@ enum class Color {
   BrightWhite = 97
 };
 
+/**
+ * @brief Enum representing standard and bright ANSI background colors.
+ *
+ * These values can be used to set the background color of terminal output
+ * using ANSI escape codes.
+ */
 enum class BgColor {
   Default = 49,
   Black = 40,

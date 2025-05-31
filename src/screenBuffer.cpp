@@ -24,22 +24,26 @@ void ScreenBuffer::syncBuffers() const noexcept {
 }
 
 void ScreenBuffer::resize(int cols, int rows) noexcept {
-  if (cols == size_.x && rows == size_.y) return;
+  if (cols == size_.x && rows == size_.y)
+    return;
 
   deallocate();
   size_ = {cols, rows};
 
-  if (cols > 0 && rows > 0) allocate(cols, rows);
+  if (cols > 0 && rows > 0)
+    allocate(cols, rows);
 
   clear();
 }
 
 void ScreenBuffer::clear(Pixel fillChar) noexcept {
-  if (buffer_) std::fill_n(buffer_, size_.x * size_.y, fillChar);
+  if (buffer_)
+    std::fill_n(buffer_, size_.x * size_.y, fillChar);
 }
 
 void ScreenBuffer::flush() const noexcept {
-  if (!buffer_ || !prevBuffer_) return;
+  if (!buffer_ || !prevBuffer_)
+    return;
 
   for (int y = 0; y < size_.y; ++y) {
     for (int x = 0; x < size_.x; ++x) {

@@ -12,13 +12,8 @@
 
 // === public methods ===
 MonoGlyph::MonoGlyph()
-    : terminal_(),
-      sBuffer_(terminal_.size()),
-      drawer_(sBuffer_),
-      fManager_(),
-      gen_(rd_()),
-      signalFDHandler_(SIGWINCH),
-      timerFDHandler_(30) {
+    : terminal_(), sBuffer_(terminal_.size()), drawer_(sBuffer_), fManager_(),
+      gen_(rd_()), signalFDHandler_(SIGWINCH), timerFDHandler_(30) {
   terminal_.altBuffer();
   terminal_.hideCur();
   terminal_.clear();
@@ -95,7 +90,8 @@ void MonoGlyph::newLetter(bool correct) {
 
 void MonoGlyph::changeState(std::unique_ptr<State> newState) {
   currentState_ = std::move(newState);
-  if (currentState_) currentState_->onEnter(*this);
+  if (currentState_)
+    currentState_->onEnter(*this);
 }
 
 State *MonoGlyph::currentState() noexcept { return currentState_.get(); }

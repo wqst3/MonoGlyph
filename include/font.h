@@ -7,67 +7,83 @@
 
 #include "commonTypes.h"
 
+/**
+ * @brief Represents a glyph in the font, composed of line segments.
+ */
 struct Glyph {
+  /// Vector of line segments that make up the glyph
   std::vector<Vector<float>> segments;
 };
 
+/**
+ * @brief Class representing a vector font loaded from a file.
+ *
+ * The font consists of glyphs, each represented by a set of line segments.
+ * The font file format:
+ * - Each line containing a single character indicates a new glyph.
+ * - Each line containing four float numbers specifies a line segment for the
+ * current glyph.
+ */
 class Font {
-  using Line = Vector<float>;
-  using Size = Point<int>;
+  using Line = Vector<float>; ///< Alias for a line segment type
+  using Size = Point<int>;    ///< Alias for size type (currently unused)
 
-  std::string name_;
-  std::unordered_map<char, Glyph> glyphs_;
+  std::string name_; ///< Name of the font (filename without extension)
+  std::unordered_map<char, Glyph>
+      glyphs_; ///< Map from characters to their glyphs
 
   /**
-   * @brief Разбирает файл шрифта, заполняя glyphs.
+   * @brief Parses a font file and populates the glyphs_ map.
    *
-   * Каждая строка с одним символом обозначает новый glyph.
-   * Строки с четырьмя числами задают линии glyph.
+   * The parsing rules:
+   * - A line with a single character starts a new glyph definition.
+   * - Lines with four float numbers specify line segments for the current
+   * glyph.
    *
-   * @param path Путь к файлу шрифта.
-   * @throws std::runtime_error Если файл не может быть открыт.
-   * */
+   * @param path Filesystem path to the font file.
+   * @throws std::runtime_error if the file cannot be opened.
+   */
   void parseFontFile(const std::filesystem::path &path);
 
- public:
+public:
   /**
-   * @brief Загружает шрифт из файла и инициализирует объект Font.
+   * @brief Constructs a Font object by loading it from a file.
    *
-   * Имя шрифта устанавливается из имени файла без расширения.
+   * The font name is extracted from the filename without its extension.
    *
-   * @param path Путь к файлу шрифта.
-   * @throws std::runtime_error Если файл нельзя открыть.
+   * @param path Filesystem path to the font file.
+   * @throws std::runtime_error if the file cannot be opened.
    */
   explicit Font(const std::filesystem::path &path);
 
   /**
-   * @brief Возвращает строку, содержащую все символы, представленные в шрифте.
+   * @brief Returns a string containing all characters available in the font.
    *
-   * @return Строка со всеми символами (glyphs) шрифта.
+   * @return String of all characters (keys) for which glyphs exist.
    */
   const std::string getLetters() const noexcept;
 
   /**
-   * @brief Возвращает ссылку на glyph, соответствующий символу.
+   * @brief Returns a constant reference to the Glyph for a given character.
    *
-   * @param c Символ для получения glyph.
-   * @return Константная ссылка на Glyph.
-   * @throws std::out_of_range Если символ не найден.
+   * @param c Character whose glyph is requested.
+   * @return Constant reference to the Glyph.
+   * @throws std::out_of_range if the character is not found in the font.
    */
   const Glyph &get(char c) const;
 
   /**
-   * @brief Возвращает указатель на glyph, если он существует.
+   * @brief Returns a pointer to the Glyph for a given character if it exists.
    *
-   * @param c Символ для поиска.
-   * @return Указатель на Glyph, либо nullptr если символ не найден.
+   * @param c Character to search for.
+   * @return Pointer to the Glyph if found, nullptr otherwise.
    */
   const Glyph *getIfExists(char c) const noexcept;
 
   /**
-   * @brief Возвращает имя шрифта.
+   * @brief Returns the name of the font.
    *
-   * @return Имя шрифта.
+   * @return Font name as a std::string.
    */
   const std::string name() const noexcept { return name_; }
 };

@@ -13,146 +13,167 @@
 
 /**
  * @class MonoGlyph
- * @brief Основной класс, управляющий  состояниями и обработкой событий.
+ * @brief Core class managing the game state, rendering, input, and timing for a
+ * glyph-based typing game.
+ *
+ * MonoGlyph handles terminal setup, font loading, glyph selection, and state
+ * transitions. It manages three glyphs: left, main, and right, updating them as
+ * the player inputs letters.
  */
 class MonoGlyph {
-  using Line = Vector<float>;
-  using Size = Point<int>;
+  using Line = Vector<float>; ///< Type alias for a vector of floats
+                              ///< representing a line (used in glyph segments)
+  using Size = Point<int>; ///< Type alias for a 2D integer point representing
+                           ///< terminal size
 
-  bool correctLetterInput_;
+  bool correctLetterInput_; ///< Flag indicating if the last letter input was
+                            ///< correct
 
-  std::unique_ptr<State> currentState_;
+  std::unique_ptr<State> currentState_; ///< Current game state
 
-  Terminal terminal_;
-  ScreenBuffer sBuffer_;
-  Drawer drawer_;
-  FontManager fManager_;
+  Terminal terminal_;    ///< Terminal interface wrapper
+  ScreenBuffer sBuffer_; ///< Screen buffer for offscreen rendering
+  Drawer drawer_;        ///< Drawer for rendering glyphs and UI elements
+  FontManager fManager_; ///< Font manager to load and access fonts
 
-  std::random_device rd_;
-  std::mt19937 gen_;
+  std::random_device rd_; ///< Random device for seeding RNG
+  std::mt19937 gen_;      ///< Mersenne Twister random number generator
 
-  SignalFDHandler signalFDHandler_;
-  TimerFDHandler timerFDHandler_;
+  SignalFDHandler
+      signalFDHandler_; ///< Signal file descriptor handler (e.g. for SIGWINCH)
+  TimerFDHandler
+      timerFDHandler_; ///< Timer file descriptor handler for timing events
 
-  Glyph leftLetter_;
-  Glyph mainLetter_;
-  Glyph rightLetter_;
+  Glyph leftLetter_;  ///< Glyph displayed on the left (previous letter)
+  Glyph mainLetter_;  ///< Glyph displayed in the center (current letter)
+  Glyph rightLetter_; ///< Glyph displayed on the right (next letter)
 
- public:
+public:
   /**
-   * @brief Конструктор по умолчанию. Инициализирует терминал, загрузку шрифта и
-   * состояние.
+   * @brief Default constructor.
+   *
+   * Initializes terminal, screen buffer, drawer, font manager,
+   * random generator, signal and timer handlers.
+   * Sets terminal to raw mode and alternate buffer.
+   * Loads fonts and changes to the menu state.
    */
   MonoGlyph();
 
-  /**
-   * @brief Удалённый конструктор копирования.
-   */
-  MonoGlyph(const MonoGlyph &) = delete;
+  MonoGlyph(const MonoGlyph &) = delete; ///< Deleted copy constructor.
+  MonoGlyph &
+  operator=(const MonoGlyph &) = delete; ///< Deleted copy assignment operator.
 
   /**
-   * @brief Удалённый оператор присваивания.
-   */
-  MonoGlyph &operator=(const MonoGlyph &) = delete;
-
-  /**
-   * @brief Деструктор. Восстанавливает состояние терминала.
+   * @brief Destructor.
+   *
+   * Restores terminal to original settings and disables raw mode.
    */
   ~MonoGlyph();
 
   /**
-   * @brief Проверяет, был ли ввод буквы корректным.
-   * @return true, если ввод корректен, иначе false.
+   * @brief Checks if the last letter input was correct.
+   * @return True if last input was correct, false otherwise.
    */
   bool correctLetterInput() const noexcept;
 
   /**
-   * @brief Запускает основной цикл приложения.
-   * @return 0 при успешном завершении, 1 при системной ошибке, 2 при другой
-   * ошибке.
+   * @brief Starts the main event loop.
+   *
+   * Runs until the current state is nullptr.
+   * Catches system and general exceptions, returning error codes.
+   * @return 0 on success, non-zero on error.
    */
   int start();
 
   /**
-   * @brief Обрабатывает событие изменения размера терминала.
+   * @brief Handles terminal resize event.
+   *
+   * Updates terminal size, resizes screen buffer, and clears the terminal.
    */
   void onResize();
 
   /**
-   * @brief Инициализирует начальные буквы: центральную и правую, очищает левую.
+   * @brief Updates the three displayed letters.
+   *
+   * Picks random letters from the English font and sets main and right letters.
+   * Clears the left letter.
    */
   void updateLetters();
 
   /**
-   * @brief Обновляет буквы после ввода. Сдвигает текущие и генерирует новую
-   * правую.
-   * @param correct Флаг корректности ввода пользователем.
+   * @brief Advances to the next letters based on input correctness.
+   *
+   * Moves mainLetter_ to leftLetter_, rightLetter_ to mainLetter_, and
+   * selects a new random rightLetter_. Also updates correctLetterInput_ flag.
+   * @param correct Whether the input was correct.
    */
   void newLetter(bool correct);
 
   /**
-   * @brief Сменить текущее состояние.
-   * @param newState Указатель на новое состояние.
+   * @brief Changes the current game state.
+   *
+   * Transfers ownership of the new state and calls its onEnter method.
+   * @param newState New state to set.
    */
   void changeState(std::unique_ptr<State> newState);
 
   /**
-   * @brief Получить текущее состояние.
-   * @return Указатель на текущее состояние.
+   * @brief Gets a pointer to the current state.
+   * @return Pointer to current State object or nullptr if none.
    */
   State *currentState() noexcept;
 
   /**
-   * @brief Получить объект терминала.
-   * @return Ссылка на Terminal.
+   * @brief Accessor for the terminal interface.
+   * @return Reference to the Terminal object.
    */
   Terminal &terminal() noexcept;
 
   /**
-   * @brief Получить экранный буфер.
-   * @return Ссылка на ScreenBuffer.
+   * @brief Accessor for the screen buffer.
+   * @return Reference to the ScreenBuffer object.
    */
   ScreenBuffer &screenBuffer() noexcept;
 
   /**
-   * @brief Получить объект рисовальщика.
-   * @return Ссылка на Drawer.
+   * @brief Accessor for the drawer.
+   * @return Reference to the Drawer object.
    */
   Drawer &drawer() noexcept;
 
   /**
-   * @brief Получить менеджер шрифтов.
-   * @return Ссылка на FontManager.
+   * @brief Accessor for the font manager.
+   * @return Reference to the FontManager object.
    */
   FontManager &fonts() noexcept;
 
   /**
-   * @brief Получить обработчик сигнала SIGWINCH.
-   * @return Ссылка на SignalFDHandler.
+   * @brief Accessor for the signal file descriptor handler.
+   * @return Reference to the SignalFDHandler object.
    */
   SignalFDHandler &signalFDHandler() noexcept;
 
   /**
-   * @brief Получить обработчик таймера.
-   * @return Ссылка на TimerFDHandler.
+   * @brief Accessor for the timer file descriptor handler.
+   * @return Reference to the TimerFDHandler object.
    */
   TimerFDHandler &timerFDHandler() noexcept;
 
   /**
-   * @brief Получить левую букву.
-   * @return Ссылка на Glyph.
+   * @brief Accessor for the left letter glyph.
+   * @return Reference to the left Glyph.
    */
   Glyph &leftLetter() noexcept;
 
   /**
-   * @brief Получить основную (центральную) букву.
-   * @return Ссылка на Glyph.
+   * @brief Accessor for the main letter glyph.
+   * @return Reference to the main Glyph.
    */
   Glyph &mainLetter() noexcept;
 
   /**
-   * @brief Получить правую букву.
-   * @return Ссылка на Glyph.
+   * @brief Accessor for the right letter glyph.
+   * @return Reference to the right Glyph.
    */
   Glyph &rightLetter() noexcept;
 };
