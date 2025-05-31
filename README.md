@@ -12,6 +12,7 @@
 # Table of Contents
 
 - [Features](#features)
+- [Demo](#demo)
 - [Build and Installation](#build-and-installation)
 - [Quick Start](#quick-start)
 - [Font File Format](#font-file-format)
@@ -27,6 +28,12 @@
 - **Finite State Machine Architecture** — Clean and modular control flow using a flexible state pattern.
 - **Dynamic Terminal UI** — Real-time responsive interface with smooth screen updates using raw ANSI sequences.
 - **Custom Font System** — Unicode-aware, vector-based font engine supporting user-defined glyph sets.
+
+---
+
+# Demo
+
+<img src="https://github.com/wqst3/MonoGlyph/blob/master/assets/monoglyph.gif" width="400" alt="Demo GIF">
 
 ---
 
